@@ -27,11 +27,17 @@ import {
   PlayCircle,
   Check,
   TrendingUp,
+  LogOut,
 } from "lucide-react";
 import candidateAsset from "@/assets/candidate.png.asset.json";
 const candidatePhoto = candidateAsset.url;
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { AuthModal } from "@/components/AuthModal";
+import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
