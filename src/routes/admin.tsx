@@ -827,8 +827,8 @@ const NAV: { id: Screen; label: string; icon: any }[] = [
   { id: "dashboard", label: "Painel", icon: LayoutDashboard },
   { id: "leads", label: "Leads", icon: Users },
   { id: "mensagens", label: "Inbox", icon: Inbox },
-  { id: "voluntarios", label: "Voluntários", icon: HandHeart },
   { id: "agenda", label: "Agenda", icon: Calendar },
+  { id: "conteudo", label: "Conteúdo", icon: Settings },
 ];
 
 const TITLES: Record<Screen, string> = {
@@ -911,7 +911,7 @@ function AdminApp() {
             })}
           </div>
           <div className="flex items-center justify-center gap-1.5 mt-2">
-            {(["propostas", "conteudo", "analytics"] as Screen[]).map((s) => (
+            {(["voluntarios", "propostas", "analytics"] as Screen[]).map((s) => (
               <button
                 key={s}
                 onClick={() => setScreen(s)}
