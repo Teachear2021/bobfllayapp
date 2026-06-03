@@ -96,15 +96,258 @@ function HomeScreen({ onNavigate }: { onNavigate: (t: any) => void }) {
   return (
     <div className="space-y-6">
       <HeaderCard />
+      <StoriesRow />
+      <UrnaCard />
+      <CountdownBanner />
       <PrimaryAction />
       <QuickTiles onNavigate={onNavigate} />
       <StatsRow />
+      <BairroProof />
       <SectionHeader title="Próximo evento" actionLabel="Agenda" onAction={() => onNavigate("agenda")} />
       <EventCard />
+      <SectionHeader title="Entregas do mandato" actionLabel="Ver todas" onAction={() => onNavigate("propostas")} />
+      <DeliveriesCard />
       <SectionHeader title="Proposta em destaque" actionLabel="Ver todas" onAction={() => onNavigate("propostas")} />
       <ProposalCard />
+      <MultiplierCard />
+      <EndorsementsCard />
       <SupportInline />
     </div>
+  );
+}
+
+function StoriesRow() {
+  const items = [
+    { label: "Hoje", color: "from-pink-500 to-rose-400" },
+    { label: "Comício", color: "from-fuchsia-500 to-pink-500" },
+    { label: "Bairros", color: "from-rose-400 to-orange-300" },
+    { label: "Live", color: "from-pink-600 to-purple-500" },
+    { label: "Bastidor", color: "from-pink-400 to-pink-200" },
+  ];
+  return (
+    <div className="-mx-5 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex gap-3">
+        {items.map((s) => (
+          <button key={s.label} className="flex flex-col items-center gap-1 active:scale-95 transition">
+            <div className={`flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br ${s.color} p-[2px]`}>
+              <div className="flex h-full w-full items-center justify-center rounded-full bg-card">
+                <img src={candidatePhoto} alt="" className="h-[58px] w-[58px] rounded-full object-cover" />
+              </div>
+            </div>
+            <span className="text-[10px] font-semibold text-foreground">{s.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function UrnaCard() {
+  const number = "13567";
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard?.writeText(number);
+    setCopied(true);
+    toast.success("Número copiado!");
+    setTimeout(() => setCopied(false), 1600);
+  };
+  const share = () => {
+    const text = `Meu voto é Bob Fllay — ${number}. Deputado Federal. Trabalho sério e presença real.`;
+    if (navigator.share) navigator.share({ title: "Bob Fllay 13567", text }).catch(() => {});
+    else {
+      navigator.clipboard?.writeText(text);
+      toast.success("Mensagem copiada para o WhatsApp!");
+    }
+  };
+  return (
+    <Reveal>
+      <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-card)]">
+        <div className="relative p-5 text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>
+          <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest opacity-90">
+            <Vote className="h-3 w-3" /> Seu voto na urna
+          </div>
+          <div className="mt-2 flex items-end justify-between">
+            <div>
+              <p className="text-[11px] opacity-90">Deputado Federal</p>
+              <div className="mt-1 flex gap-1.5">
+                {number.split("").map((d, i) => (
+                  <span
+                    key={i}
+                    className="flex h-12 w-9 items-center justify-center rounded-lg bg-white/15 backdrop-blur text-2xl font-extrabold tabular-nums ring-1 ring-white/30"
+                  >
+                    {d}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+          <p className="mt-3 text-[12px] opacity-95">Bob Fllay · PSD</p>
+        </div>
+        <div className="flex border-t border-border">
+          <button onClick={copy} className="flex flex-1 items-center justify-center gap-1.5 py-3 text-xs font-semibold text-foreground transition active:scale-95">
+            {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4 text-primary" />}
+            {copied ? "Copiado" : "Copiar"}
+          </button>
+          <div className="w-px bg-border" />
+          <button onClick={share} className="flex flex-1 items-center justify-center gap-1.5 py-3 text-xs font-semibold text-foreground transition active:scale-95">
+            <Share2 className="h-4 w-4 text-primary" /> Compartilhar
+          </button>
+        </div>
+      </section>
+    </Reveal>
+  );
+}
+
+function CountdownBanner() {
+  const target = new Date("2026-10-04T08:00:00-03:00").getTime();
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const diff = Math.max(0, target - now);
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff / 3600000) % 24);
+  const m = Math.floor((diff / 60000) % 60);
+  const s = Math.floor((diff / 1000) % 60);
+  const Box = ({ v, l }: { v: number; l: string }) => (
+    <div className="flex flex-col items-center">
+      <span className="text-base font-extrabold tabular-nums text-foreground">{String(v).padStart(2, "0")}</span>
+      <span className="text-[9px] uppercase tracking-wider text-muted-foreground">{l}</span>
+    </div>
+  );
+  return (
+    <div className="flex items-center justify-between rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">Faltam para a eleição</p>
+        <p className="text-[11px] text-muted-foreground">Seu voto é 4 dígitos — 13567</p>
+      </div>
+      <div className="flex gap-2.5">
+        <Box v={d} l="dias" />
+        <Box v={h} l="hrs" />
+        <Box v={m} l="min" />
+        <Box v={s} l="seg" />
+      </div>
+    </div>
+  );
+}
+
+function BairroProof() {
+  return (
+    <Reveal>
+      <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent">
+          <TrendingUp className="h-5 w-5 text-primary" />
+        </div>
+        <div className="flex-1">
+          <p className="text-[13px] font-bold text-foreground">+342 apoiadores no seu bairro</p>
+          <p className="text-[11px] text-muted-foreground">Bairro União · atualizado hoje</p>
+        </div>
+        <button className="rounded-full bg-primary/10 px-3 py-1.5 text-[11px] font-semibold text-primary">Ver mapa</button>
+      </div>
+    </Reveal>
+  );
+}
+
+function DeliveriesCard() {
+  const items = [
+    { n: "R$ 42M", l: "em emendas" },
+    { n: "87", l: "obras entregues" },
+    { n: "23", l: "projetos aprovados" },
+    { n: "112", l: "cidades atendidas" },
+  ];
+  return (
+    <Reveal>
+      <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
+        <div className="flex items-center gap-2 border-b border-border px-4 py-3">
+          <Trophy className="h-4 w-4 text-primary" />
+          <p className="text-[12px] font-bold text-foreground">O que já entreguei como Deputado Estadual</p>
+        </div>
+        <div className="grid grid-cols-2 divide-x divide-y divide-border">
+          {items.map((i) => (
+            <div key={i.l} className="p-4">
+              <p className="text-lg font-extrabold tracking-tight text-foreground">{i.n}</p>
+              <p className="text-[11px] text-muted-foreground">{i.l}</p>
+            </div>
+          ))}
+        </div>
+      </article>
+    </Reveal>
+  );
+}
+
+function MultiplierCard() {
+  const [count] = useState(7);
+  const goal = 10;
+  const pct = Math.min(100, (count / goal) * 100);
+  const link = "bobfllay.app/r/MARIA42";
+  const share = () => {
+    const text = `Vamos juntos eleger Bob Fllay 13567 para Deputado Federal! Confirme seu voto: https://${link}`;
+    if (navigator.share) navigator.share({ title: "Bob Fllay 13567", text }).catch(() => {});
+    else {
+      navigator.clipboard?.writeText(text);
+      toast.success("Link copiado!");
+    }
+  };
+  return (
+    <Reveal>
+      <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
+        <div className="flex items-start gap-3 p-4">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>
+            <Users className="h-5 w-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">Vire multiplicador</p>
+            <h3 className="text-[15px] font-bold leading-snug text-foreground">Convide 10 amigos a votar</h3>
+            <p className="mt-0.5 text-[12px] text-muted-foreground">Seu link pessoal de indicação</p>
+          </div>
+        </div>
+        <div className="px-4">
+          <div className="flex items-center justify-between text-[11px] font-semibold">
+            <span className="text-foreground">{count} de {goal} confirmados</span>
+            <span className="text-primary">{Math.round(pct)}%</span>
+          </div>
+          <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-secondary">
+            <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: "var(--gradient-primary)" }} />
+          </div>
+        </div>
+        <div className="mt-3 flex items-center gap-2 border-t border-border bg-secondary/40 px-4 py-2.5">
+          <code className="flex-1 truncate text-[11px] text-muted-foreground">{link}</code>
+          <button onClick={share} className="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-[11px] font-bold text-primary-foreground active:scale-95">
+            <Share2 className="h-3.5 w-3.5" /> Compartilhar
+          </button>
+        </div>
+      </section>
+    </Reveal>
+  );
+}
+
+function EndorsementsCard() {
+  const list = [
+    { n: "Sindicato dos Professores", i: GraduationCap },
+    { n: "Frente Saúde Já", i: Stethoscope },
+    { n: "Prefeito de Vila Nova", i: Building2 },
+    { n: "Coletivo Juventude+", i: Award },
+  ];
+  return (
+    <Reveal>
+      <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
+        <div className="flex items-center gap-2 border-b border-border px-4 py-3">
+          <ShieldCheck className="h-4 w-4 text-primary" />
+          <p className="text-[12px] font-bold text-foreground">Quem caminha com a gente</p>
+        </div>
+        <div className="grid grid-cols-2 gap-2 p-3">
+          {list.map(({ n, i: Icon }) => (
+            <div key={n} className="flex items-center gap-2 rounded-xl bg-secondary/50 p-2.5">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-card">
+                <Icon className="h-4 w-4 text-primary" />
+              </div>
+              <span className="text-[11px] font-semibold leading-tight text-foreground">{n}</span>
+            </div>
+          ))}
+        </div>
+      </article>
+    </Reveal>
   );
 }
 
