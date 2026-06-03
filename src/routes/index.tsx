@@ -164,7 +164,7 @@ function HomeScreen({ onNavigate, user, openAuth }: { onNavigate: (t: any) => vo
       <ProposalCard />
       <MultiplierCard user={user} openAuth={openAuth} />
       <EndorsementsCard />
-      <SupportInline />
+      <SupportInline user={user} />
     </div>
   );
 }
