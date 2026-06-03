@@ -19,7 +19,8 @@ import {
   ChevronRight,
   ArrowUpRight,
 } from "lucide-react";
-import candidatePhoto from "@/assets/candidate.jpg";
+import candidateAsset from "@/assets/candidate.png.asset.json";
+const candidatePhoto = candidateAsset.url;
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
