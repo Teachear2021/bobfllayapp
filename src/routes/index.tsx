@@ -623,10 +623,11 @@ function SimpleScreen({ title, subtitle }: { title: string; subtitle: string }) 
 
 function Reveal({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [shown, setShown] = useState(false);
+  const [shown, setShown] = useState(true);
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    setShown(false);
     const io = new IntersectionObserver(
       ([e]) => {
         if (e.isIntersecting) {
@@ -634,10 +635,14 @@ function Reveal({ children }: { children: React.ReactNode }) {
           io.disconnect();
         }
       },
-      { threshold: 0.15 },
+      { threshold: 0.05 },
     );
     io.observe(el);
-    return () => io.disconnect();
+    const fallback = setTimeout(() => setShown(true), 400);
+    return () => {
+      io.disconnect();
+      clearTimeout(fallback);
+    };
   }, []);
   return (
     <div
