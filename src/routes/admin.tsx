@@ -25,6 +25,14 @@ import {
   Plus,
   Edit3,
   MoreVertical,
+  Trash2,
+  Save,
+  X,
+  Image as ImageIcon,
+  Vote,
+  Trophy,
+  ShieldCheck,
+  Share2,
 } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
