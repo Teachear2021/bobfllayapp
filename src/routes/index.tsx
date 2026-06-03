@@ -705,7 +705,108 @@ function Field({ name, placeholder, type = "text", required }: { name: string; p
   );
 }
 
+function ProfileScreen({ user, openAuth }: { user: any, openAuth: () => void }) {
+  const [profile, setProfile] = useState<{ full_name: string | null; phone: string | null } | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setLoading(true);
+      supabase
+        .from("profiles")
+        .select("full_name, phone")
+        .eq("id", user.id)
+        .single()
+        .then(({ data }) => {
+          setProfile(data);
+          setLoading(false);
+        });
+    }
+  }, [user]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast.success("Sessão encerrada");
+  };
+
+  if (!user) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight text-foreground">Perfil</h1>
+          <p className="text-sm text-muted-foreground">Sua conta e preferências</p>
+        </div>
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary mb-4">
+            <User className="h-8 w-8" />
+          </div>
+          <h3 className="text-lg font-bold text-foreground">Você ainda não entrou</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Entre com seu telefone para acompanhar suas indicações e receber novidades.</p>
+          <button
+            onClick={openAuth}
+            className="mt-6 rounded-xl bg-primary px-8 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all active:scale-95"
+          >
+            Entrar no App
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight text-foreground">Meu Perfil</h1>
+          <p className="text-sm text-muted-foreground">Olá, {profile?.full_name || "Apoiador"}</p>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-muted-foreground active:scale-95 transition"
+        >
+          <LogOut className="h-4.5 w-4.5" />
+        </button>
+      </div>
+
+      <div className="rounded-3xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+        <div className="flex items-center gap-4">
+          <div className="h-16 w-16 overflow-hidden rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+            <User className="h-8 w-8" />
+          </div>
+          <div className="flex-1">
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary">Apoiador Confirmado</p>
+            <p className="text-lg font-bold text-foreground">{profile?.full_name || "Completar cadastro..."}</p>
+            <p className="text-sm text-muted-foreground">{profile?.phone}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-3">
+        <button className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 text-left active:scale-[0.99] transition">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-primary">
+              <Calendar className="h-4.5 w-4.5" />
+            </div>
+            <span className="text-sm font-semibold">Minha agenda</span>
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </button>
+        <button className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 text-left active:scale-[0.99] transition">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-primary">
+              <MessageCircle className="h-4.5 w-4.5" />
+            </div>
+            <span className="text-sm font-semibold">Mensagens</span>
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function SimpleScreen({ title, subtitle }: { title: string; subtitle: string }) {
+
   return (
     <div className="space-y-4">
       <div>
