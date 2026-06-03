@@ -632,7 +632,7 @@ function ProposalCard() {
   );
 }
 
-function SupportInline() {
+function SupportInline({ user }: { user: any }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
