@@ -472,19 +472,49 @@ function VolunteersScreen() {
 }
 
 function AgendaScreen() {
+  const [items, setItems] = useState(EVENTS.map((e) => ({ ...e })));
+  const [editing, setEditing] = useState<number | "new" | null>(null);
+  const [draft, setDraft] = useState({ title: "", date: "", time: "", location: "" });
+
+  const startNew = () => { setDraft({ title: "", date: "", time: "", location: "" }); setEditing("new"); };
+  const startEdit = (e: typeof items[number]) => { setDraft({ title: e.title, date: e.date, time: e.time, location: e.location }); setEditing(e.id); };
+  const save = () => {
+    if (!draft.title.trim()) return toast.error("Título obrigatório");
+    if (editing === "new") {
+      setItems([{ id: Date.now(), ...draft }, ...items]);
+      toast.success("Evento adicionado");
+    } else if (typeof editing === "number") {
+      setItems(items.map((x) => (x.id === editing ? { ...x, ...draft } : x)));
+      toast.success("Evento atualizado");
+    }
+    setEditing(null);
+  };
+  const remove = (id: number) => { setItems(items.filter((x) => x.id !== id)); toast.success("Removido"); };
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between rounded-2xl bg-card border p-3 shadow-[var(--shadow-card)]">
         <div>
           <p className="text-sm font-semibold">Agenda</p>
-          <p className="text-xs text-muted-foreground">{EVENTS.length} eventos próximos</p>
+          <p className="text-xs text-muted-foreground">{items.length} eventos · sincroniza com a home</p>
         </div>
-        <button onClick={() => toast.success("Novo evento")} className="inline-flex items-center gap-1 text-xs font-medium text-primary-foreground bg-primary px-3 py-1.5 rounded-full active:scale-95 transition">
+        <button onClick={startNew} className="inline-flex items-center gap-1 text-xs font-medium text-primary-foreground bg-primary px-3 py-1.5 rounded-full active:scale-95 transition">
           <Plus className="h-3.5 w-3.5" /> Novo
         </button>
       </div>
 
-      {EVENTS.map((e) => (
+      {editing !== null && (
+        <EditorCard title={editing === "new" ? "Novo evento" : "Editar evento"} onCancel={() => setEditing(null)} onSave={save}>
+          <Input label="Título" value={draft.title} onChange={(v) => setDraft({ ...draft, title: v })} placeholder="Reunião com lideranças locais" />
+          <div className="grid grid-cols-2 gap-2">
+            <Input label="Data" value={draft.date} onChange={(v) => setDraft({ ...draft, date: v })} placeholder="Hoje · Sáb 07/06" />
+            <Input label="Hora" value={draft.time} onChange={(v) => setDraft({ ...draft, time: v })} placeholder="18h30" />
+          </div>
+          <Input label="Local" value={draft.location} onChange={(v) => setDraft({ ...draft, location: v })} placeholder="Centro Comunitário, Centro" />
+        </EditorCard>
+      )}
+
+      {items.map((e) => (
         <Reveal key={e.id}>
           <div className="rounded-2xl bg-card border p-3.5 shadow-[var(--shadow-card)]">
             <div className="flex items-start gap-3">
@@ -498,8 +528,11 @@ function AgendaScreen() {
                   <MapPin className="h-3 w-3" /> {e.location}
                 </p>
               </div>
-              <button onClick={() => toast.success("Editar")} className="h-8 w-8 grid place-items-center rounded-lg hover:bg-muted active:scale-95 transition">
+              <button onClick={() => startEdit(e)} className="h-8 w-8 grid place-items-center rounded-lg hover:bg-muted active:scale-95 transition">
                 <Edit3 className="h-4 w-4 text-muted-foreground" />
+              </button>
+              <button onClick={() => remove(e.id)} className="h-8 w-8 grid place-items-center rounded-lg hover:bg-destructive/10 active:scale-95 transition">
+                <Trash2 className="h-4 w-4 text-destructive" />
               </button>
             </div>
           </div>
@@ -510,7 +543,21 @@ function AgendaScreen() {
 }
 
 function ProposalsScreen() {
-  const [items, setItems] = useState(PROPOSALS);
+  const [items, setItems] = useState(PROPOSALS.map((p) => ({ ...p, area: "Saúde", desc: "" })));
+  const [editing, setEditing] = useState<number | "new" | null>(null);
+  const [draft, setDraft] = useState({ title: "", area: "", desc: "", active: true });
+
+  const startNew = () => { setDraft({ title: "", area: "", desc: "", active: true }); setEditing("new"); };
+  const startEdit = (p: typeof items[number]) => { setDraft({ title: p.title, area: p.area, desc: p.desc, active: p.active }); setEditing(p.id); };
+  const save = () => {
+    if (!draft.title.trim()) return toast.error("Título obrigatório");
+    if (editing === "new") setItems([{ id: Date.now(), ...draft }, ...items]);
+    else if (typeof editing === "number") setItems(items.map((x) => (x.id === editing ? { ...x, ...draft } : x)));
+    toast.success("Salvo");
+    setEditing(null);
+  };
+  const remove = (id: number) => { setItems(items.filter((x) => x.id !== id)); toast.success("Removida"); };
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between rounded-2xl bg-card border p-3 shadow-[var(--shadow-card)]">
@@ -518,10 +565,22 @@ function ProposalsScreen() {
           <p className="text-sm font-semibold">Propostas</p>
           <p className="text-xs text-muted-foreground">{items.filter((p) => p.active).length} ativas</p>
         </div>
-        <button onClick={() => toast.success("Nova proposta")} className="inline-flex items-center gap-1 text-xs font-medium text-primary-foreground bg-primary px-3 py-1.5 rounded-full active:scale-95 transition">
+        <button onClick={startNew} className="inline-flex items-center gap-1 text-xs font-medium text-primary-foreground bg-primary px-3 py-1.5 rounded-full active:scale-95 transition">
           <Plus className="h-3.5 w-3.5" /> Nova
         </button>
       </div>
+
+      {editing !== null && (
+        <EditorCard title={editing === "new" ? "Nova proposta" : "Editar proposta"} onCancel={() => setEditing(null)} onSave={save}>
+          <Input label="Título" value={draft.title} onChange={(v) => setDraft({ ...draft, title: v })} placeholder="Saúde com mais acesso e estrutura" />
+          <Input label="Área" value={draft.area} onChange={(v) => setDraft({ ...draft, area: v })} placeholder="Saúde · Educação · Segurança" />
+          <Textarea label="Descrição" value={draft.desc} onChange={(v) => setDraft({ ...draft, desc: v })} placeholder="Detalhe a proposta..." />
+          <label className="flex items-center gap-2 text-xs">
+            <input type="checkbox" checked={draft.active} onChange={(e) => setDraft({ ...draft, active: e.target.checked })} />
+            Visível no app
+          </label>
+        </EditorCard>
+      )}
 
       {items.map((p) => (
         <Reveal key={p.id}>
@@ -529,22 +588,237 @@ function ProposalsScreen() {
             <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary grid place-items-center shrink-0">
               <FileText className="h-4 w-4" />
             </div>
-            <p className="text-sm font-medium flex-1 min-w-0 truncate">{p.title}</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{p.title}</p>
+              <p className="text-[10px] text-muted-foreground">{p.area}</p>
+            </div>
             <button
-              onClick={() => { setItems(items.map((x) => (x.id === p.id ? { ...x, active: !x.active } : x))); toast.success(p.active ? "Desativada" : "Ativada"); }}
-              className={cn(
-                "relative h-6 w-11 rounded-full transition shrink-0",
-                p.active ? "bg-primary" : "bg-muted",
-              )}
+              onClick={() => { setItems(items.map((x) => (x.id === p.id ? { ...x, active: !x.active } : x))); }}
+              className={cn("relative h-6 w-11 rounded-full transition shrink-0", p.active ? "bg-primary" : "bg-muted")}
             >
               <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all", p.active ? "left-[22px]" : "left-0.5")} />
             </button>
-            <button className="h-8 w-8 grid place-items-center rounded-lg hover:bg-muted active:scale-95 transition shrink-0">
-              <MoreVertical className="h-4 w-4 text-muted-foreground" />
+            <button onClick={() => startEdit(p)} className="h-8 w-8 grid place-items-center rounded-lg hover:bg-muted active:scale-95 transition shrink-0">
+              <Edit3 className="h-4 w-4 text-muted-foreground" />
+            </button>
+            <button onClick={() => remove(p.id)} className="h-8 w-8 grid place-items-center rounded-lg hover:bg-destructive/10 active:scale-95 transition shrink-0">
+              <Trash2 className="h-4 w-4 text-destructive" />
             </button>
           </div>
         </Reveal>
       ))}
+    </div>
+  );
+}
+
+// ===== Reusable form primitives =====
+function Input({ label, value, onChange, placeholder, type = "text" }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string }) {
+  return (
+    <label className="block">
+      <span className="text-[11px] font-medium text-muted-foreground">{label}</span>
+      <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
+        className="mt-1 w-full h-10 rounded-xl bg-background border px-3 text-sm outline-none focus:ring-2 focus:ring-primary/30" />
+    </label>
+  );
+}
+function Textarea({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
+  return (
+    <label className="block">
+      <span className="text-[11px] font-medium text-muted-foreground">{label}</span>
+      <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} rows={3}
+        className="mt-1 w-full rounded-xl bg-background border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30 resize-none" />
+    </label>
+  );
+}
+function EditorCard({ title, children, onCancel, onSave }: { title: string; children: React.ReactNode; onCancel: () => void; onSave: () => void }) {
+  return (
+    <div className="rounded-2xl bg-card border border-primary/30 p-4 shadow-[var(--shadow-card)] space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-semibold">{title}</p>
+        <button onClick={onCancel} className="h-7 w-7 grid place-items-center rounded-lg hover:bg-muted">
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+      <div className="space-y-2.5">{children}</div>
+      <div className="flex gap-2 pt-1">
+        <button onClick={onCancel} className="flex-1 h-9 rounded-xl border text-xs font-medium">Cancelar</button>
+        <button onClick={onSave} className="flex-1 h-9 rounded-xl bg-primary text-primary-foreground text-xs font-semibold inline-flex items-center justify-center gap-1">
+          <Save className="h-3.5 w-3.5" /> Salvar
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ===== Content screen: edits everything that appears on the home =====
+function Accordion({ icon: Icon, title, subtitle, defaultOpen = false, children }: { icon: any; title: string; subtitle?: string; defaultOpen?: boolean; children: React.ReactNode }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="rounded-2xl bg-card border shadow-[var(--shadow-card)] overflow-hidden">
+      <button onClick={() => setOpen(!open)} className="w-full flex items-center gap-3 p-3.5 text-left active:scale-[0.995] transition">
+        <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary grid place-items-center shrink-0">
+          <Icon className="h-4 w-4" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold">{title}</p>
+          {subtitle && <p className="text-[11px] text-muted-foreground truncate">{subtitle}</p>}
+        </div>
+        <MoreVertical className={cn("h-4 w-4 text-muted-foreground transition", open && "rotate-90")} />
+      </button>
+      {open && <div className="border-t bg-muted/20 p-3.5 space-y-3">{children}</div>}
+    </div>
+  );
+}
+
+function ContentScreen() {
+  const [id, setId] = useState({ nome: "Bob Fllay", cargo: "Deputado Estadual · Candidato a Federal", partido: "PSD", urna: "13567", frase: "Trabalho sério, presença real e compromisso com quem mais precisa." });
+  const [deliveries, setDeliveries] = useState([
+    { id: 1, n: "R$ 42M", l: "em emendas" },
+    { id: 2, n: "87", l: "obras entregues" },
+    { id: 3, n: "23", l: "projetos aprovados" },
+    { id: 4, n: "112", l: "cidades atendidas" },
+  ]);
+  const [endorsements, setEndorsements] = useState([
+    { id: 1, n: "Sindicato dos Professores" },
+    { id: 2, n: "Frente Saúde Já" },
+    { id: 3, n: "Prefeito de Vila Nova" },
+    { id: 4, n: "Coletivo Juventude+" },
+  ]);
+  const [stories, setStories] = useState([
+    { id: 1, label: "Hoje" }, { id: 2, label: "Comício" }, { id: 3, label: "Bairros" }, { id: 4, label: "Live" }, { id: 5, label: "Bastidor" },
+  ]);
+  const [bairros, setBairros] = useState([
+    { id: 1, nome: "Centro", apoiadores: 412 },
+    { id: 2, nome: "Vila Nova", apoiadores: 342 },
+    { id: 3, nome: "Jardim das Flores", apoiadores: 188 },
+    { id: 4, nome: "São José", apoiadores: 95 },
+  ]);
+  const multipliers = [
+    { id: 1, name: "Maria L.", votos: 12 },
+    { id: 2, name: "João P.", votos: 9 },
+    { id: 3, name: "Ana B.", votos: 7 },
+    { id: 4, name: "Carlos M.", votos: 5 },
+  ];
+
+  return (
+    <div className="space-y-3">
+      <Accordion icon={ShieldCheck} title="Identidade da candidatura" subtitle={`${id.nome} · ${id.partido} · ${id.urna}`} defaultOpen>
+        <Input label="Nome" value={id.nome} onChange={(v) => setId({ ...id, nome: v })} />
+        <Input label="Cargo" value={id.cargo} onChange={(v) => setId({ ...id, cargo: v })} />
+        <div className="grid grid-cols-2 gap-2">
+          <Input label="Partido" value={id.partido} onChange={(v) => setId({ ...id, partido: v })} />
+          <Input label="Número de urna" value={id.urna} onChange={(v) => setId({ ...id, urna: v.replace(/\D/g, "").slice(0, 5) })} />
+        </div>
+        <Textarea label="Frase de campanha" value={id.frase} onChange={(v) => setId({ ...id, frase: v })} />
+        <button className="h-10 w-full rounded-xl border inline-flex items-center justify-center gap-2 text-xs font-medium">
+          <ImageIcon className="h-4 w-4" /> Trocar foto de perfil
+        </button>
+        <button onClick={() => toast.success("Identidade salva")} className="h-10 w-full rounded-xl bg-primary text-primary-foreground text-xs font-semibold inline-flex items-center justify-center gap-1">
+          <Save className="h-3.5 w-3.5" /> Salvar
+        </button>
+      </Accordion>
+
+      <Accordion icon={Trophy} title="Entregas do mandato" subtitle={`${deliveries.length} cards no app`}>
+        {deliveries.map((d, i) => (
+          <div key={d.id} className="rounded-xl bg-card border p-3 space-y-2">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="col-span-1">
+                <Input label="Número" value={d.n} onChange={(v) => setDeliveries(deliveries.map((x, j) => j === i ? { ...x, n: v } : x))} />
+              </div>
+              <div className="col-span-2">
+                <Input label="Descrição" value={d.l} onChange={(v) => setDeliveries(deliveries.map((x, j) => j === i ? { ...x, l: v } : x))} />
+              </div>
+            </div>
+            <button onClick={() => setDeliveries(deliveries.filter((x) => x.id !== d.id))} className="text-[11px] text-destructive inline-flex items-center gap-1">
+              <Trash2 className="h-3 w-3" /> Remover
+            </button>
+          </div>
+        ))}
+        <button onClick={() => setDeliveries([...deliveries, { id: Date.now(), n: "", l: "" }])} className="h-10 w-full rounded-xl border-2 border-dashed text-xs font-medium inline-flex items-center justify-center gap-1">
+          <Plus className="h-3.5 w-3.5" /> Adicionar entrega
+        </button>
+      </Accordion>
+
+      <Accordion icon={Star} title="Apoios institucionais" subtitle={`${endorsements.length} apoios`}>
+        {endorsements.map((e, i) => (
+          <div key={e.id} className="flex gap-2 items-end">
+            <div className="flex-1">
+              <Input label={`Apoio ${i + 1}`} value={e.n} onChange={(v) => setEndorsements(endorsements.map((x, j) => j === i ? { ...x, n: v } : x))} />
+            </div>
+            <button onClick={() => setEndorsements(endorsements.filter((x) => x.id !== e.id))} className="h-10 w-10 grid place-items-center rounded-xl hover:bg-destructive/10">
+              <Trash2 className="h-4 w-4 text-destructive" />
+            </button>
+          </div>
+        ))}
+        <button onClick={() => setEndorsements([...endorsements, { id: Date.now(), n: "" }])} className="h-10 w-full rounded-xl border-2 border-dashed text-xs font-medium inline-flex items-center justify-center gap-1">
+          <Plus className="h-3.5 w-3.5" /> Adicionar apoio
+        </button>
+      </Accordion>
+
+      <Accordion icon={ImageIcon} title="Stories do topo" subtitle={`${stories.length} destaques`}>
+        {stories.map((s, i) => (
+          <div key={s.id} className="flex gap-2 items-end">
+            <div className="flex-1">
+              <Input label={`Story ${i + 1}`} value={s.label} onChange={(v) => setStories(stories.map((x, j) => j === i ? { ...x, label: v } : x))} placeholder="Hoje · Live · Bastidor" />
+            </div>
+            <button className="h-10 w-10 grid place-items-center rounded-xl border" title="Trocar imagem">
+              <ImageIcon className="h-4 w-4 text-muted-foreground" />
+            </button>
+            <button onClick={() => setStories(stories.filter((x) => x.id !== s.id))} className="h-10 w-10 grid place-items-center rounded-xl hover:bg-destructive/10">
+              <Trash2 className="h-4 w-4 text-destructive" />
+            </button>
+          </div>
+        ))}
+        <button onClick={() => setStories([...stories, { id: Date.now(), label: "" }])} className="h-10 w-full rounded-xl border-2 border-dashed text-xs font-medium inline-flex items-center justify-center gap-1">
+          <Plus className="h-3.5 w-3.5" /> Adicionar story
+        </button>
+      </Accordion>
+
+      <Accordion icon={MapPin} title="Apoiadores por bairro" subtitle={`${bairros.length} bairros mapeados`}>
+        {bairros.map((b, i) => (
+          <div key={b.id} className="grid grid-cols-[1fr_100px_auto] gap-2 items-end">
+            <Input label="Bairro" value={b.nome} onChange={(v) => setBairros(bairros.map((x, j) => j === i ? { ...x, nome: v } : x))} />
+            <Input label="Apoiadores" type="number" value={String(b.apoiadores)} onChange={(v) => setBairros(bairros.map((x, j) => j === i ? { ...x, apoiadores: Number(v) || 0 } : x))} />
+            <button onClick={() => setBairros(bairros.filter((x) => x.id !== b.id))} className="h-10 w-10 grid place-items-center rounded-xl hover:bg-destructive/10">
+              <Trash2 className="h-4 w-4 text-destructive" />
+            </button>
+          </div>
+        ))}
+        <button onClick={() => setBairros([...bairros, { id: Date.now(), nome: "", apoiadores: 0 }])} className="h-10 w-full rounded-xl border-2 border-dashed text-xs font-medium inline-flex items-center justify-center gap-1">
+          <Plus className="h-3.5 w-3.5" /> Adicionar bairro
+        </button>
+      </Accordion>
+
+      <Accordion icon={Share2} title="Multiplicadores (ranking)" subtitle="Apoiadores que mais indicaram votos">
+        <div className="space-y-2">
+          {multipliers.map((m, i) => (
+            <div key={m.id} className="flex items-center gap-3 rounded-xl bg-card border p-2.5">
+              <div className={cn("h-7 w-7 rounded-full grid place-items-center text-xs font-bold", i === 0 ? "bg-amber-500/15 text-amber-600" : "bg-muted text-muted-foreground")}>
+                {i + 1}
+              </div>
+              <p className="text-sm font-medium flex-1">{m.name}</p>
+              <span className="text-xs font-semibold text-primary">{m.votos} votos</span>
+            </div>
+          ))}
+        </div>
+      </Accordion>
+
+      <Accordion icon={Vote} title="Contagem regressiva" subtitle="Data da eleição">
+        <Input label="Data da eleição (ISO)" value="2026-10-04T08:00:00-03:00" onChange={() => {}} />
+        <p className="text-[11px] text-muted-foreground">Atualizado em tempo real na home.</p>
+      </Accordion>
+    </div>
+  );
+}
+
+function GenericScreen({ icon: Icon, title, desc }: { icon: any; title: string; desc: string }) {
+  return (
+    <div className="rounded-2xl bg-card border p-8 shadow-[var(--shadow-card)] text-center">
+      <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary grid place-items-center mx-auto mb-3">
+        <Icon className="h-5 w-5" />
+      </div>
+      <p className="font-semibold">{title}</p>
+      <p className="text-xs text-muted-foreground mt-1">{desc}</p>
     </div>
   );
 }
