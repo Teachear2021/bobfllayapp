@@ -145,7 +145,7 @@ function TopBar() {
 }
 
 
-function HomeScreen({ onNavigate }: { onNavigate: (t: any) => void }) {
+function HomeScreen({ onNavigate, user, openAuth }: { onNavigate: (t: any) => void, user: any, openAuth: () => void }) {
   return (
     <div className="space-y-6">
       <HeaderCard />
@@ -162,12 +162,13 @@ function HomeScreen({ onNavigate }: { onNavigate: (t: any) => void }) {
       <DeliveriesCard />
       <SectionHeader title="Proposta em destaque" actionLabel="Ver todas" onAction={() => onNavigate("propostas")} />
       <ProposalCard />
-      <MultiplierCard />
+      <MultiplierCard user={user} openAuth={openAuth} />
       <EndorsementsCard />
       <SupportInline />
     </div>
   );
 }
+
 
 function StoriesRow() {
   const items = [
