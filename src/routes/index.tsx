@@ -99,7 +99,7 @@ function HomeScreen({ onNavigate }: { onNavigate: (t: any) => void }) {
       <StoriesRow />
       <UrnaCard />
       <CountdownBanner />
-      <PrimaryAction />
+      
       <QuickTiles onNavigate={onNavigate} />
       <StatsRow />
       <BairroProof />
@@ -551,6 +551,7 @@ function ProposalCard() {
 }
 
 function SupportInline() {
+  const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -559,38 +560,53 @@ function SupportInline() {
       setSubmitting(false);
       toast.success("Mensagem enviada! Em breve nossa equipe entra em contato.");
       (e.target as HTMLFormElement).reset();
+      setOpen(false);
     }, 600);
   };
   return (
     <section id="apoio" className="overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-card)]">
-      <div className="px-5 py-4 text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider opacity-90">Sou seu apoiador</span>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-3 px-5 py-4 text-left text-primary-foreground transition active:scale-[0.99]"
+        style={{ background: "var(--gradient-primary)" }}
+      >
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur">
+          <MessageCircle className="h-5 w-5" />
         </div>
-        <h2 className="mt-0.5 text-lg font-bold">Deixe sua mensagem</h2>
-        <p className="text-xs opacity-95">Sua voz chega direto para o Bob.</p>
-      </div>
-      <form onSubmit={handleSubmit} className="space-y-2.5 p-4">
-        <Field name="nome" placeholder="Seu nome" required />
-        <Field name="telefone" placeholder="Telefone (WhatsApp)" type="tel" required />
-        <textarea
-          name="mensagem"
-          rows={3}
-          required
-          placeholder="Escreva sua mensagem..."
-          className="w-full resize-none rounded-2xl border border-input bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-        />
-        <button
-          type="submit"
-          disabled={submitting}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-[var(--shadow-soft)] transition active:scale-[0.98] disabled:opacity-70"
-          style={{ background: "var(--gradient-primary)" }}
-        >
-          <Send className="h-4 w-4" />
-          {submitting ? "Enviando..." : "Enviar mensagem"}
-        </button>
-      </form>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-3.5 w-3.5" />
+            <span className="text-[10px] font-semibold uppercase tracking-wider opacity-90">Sou seu apoiador</span>
+          </div>
+          <h2 className="mt-0.5 text-lg font-bold leading-tight">Deixe sua mensagem</h2>
+          <p className="text-xs opacity-95">Toque para {open ? "fechar" : "abrir"} o formulário</p>
+        </div>
+        <ChevronRight className={`h-5 w-5 transition ${open ? "rotate-90" : ""}`} />
+      </button>
+      {open && (
+        <form onSubmit={handleSubmit} className="space-y-2.5 p-4 animate-[fade-in_200ms_ease-out]">
+          <Field name="nome" placeholder="Seu nome" required />
+          <Field name="telefone" placeholder="Telefone (WhatsApp)" type="tel" required />
+          <textarea
+            name="mensagem"
+            rows={3}
+            required
+            placeholder="Escreva sua mensagem..."
+            className="w-full resize-none rounded-2xl border border-input bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          />
+          <button
+            type="submit"
+            disabled={submitting}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-[var(--shadow-soft)] transition active:scale-[0.98] disabled:opacity-70"
+            style={{ background: "var(--gradient-primary)" }}
+          >
+            <Send className="h-4 w-4" />
+            {submitting ? "Enviando..." : "Enviar mensagem"}
+          </button>
+        </form>
+      )}
     </section>
   );
 }
