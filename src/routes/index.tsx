@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Calendar,
   FileText,
@@ -13,6 +13,11 @@ import {
   MapPin,
   Clock,
   Send,
+  User,
+  Users,
+  Bell,
+  ChevronRight,
+  ArrowUpRight,
 } from "lucide-react";
 import candidatePhoto from "@/assets/candidate.jpg";
 import { toast } from "sonner";
@@ -21,251 +26,279 @@ import { Toaster } from "@/components/ui/sonner";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Bob Fllay — App oficial do candidato" },
+      { title: "Bob Fllay — App oficial" },
       {
         name: "description",
         content:
-          "Canal oficial do deputado estadual Bob Fllay: agenda, propostas, apoio e contato direto.",
-      },
-      { property: "og:title", content: "Bob Fllay — App oficial do candidato" },
-      {
-        property: "og:description",
-        content: "Trabalho sério, presença real e compromisso com quem mais precisa.",
+          "App oficial do deputado Bob Fllay: agenda, propostas, apoio e contato direto.",
       },
     ],
   }),
-  component: Index,
+  component: AppShell,
 });
 
-function Index() {
+function AppShell() {
+  const [tab, setTab] = useState<"home" | "agenda" | "propostas" | "apoie" | "perfil">("home");
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="relative min-h-screen overflow-x-hidden bg-[oklch(0.985_0.005_330)]">
       <Toaster position="top-center" />
-      <main className="mx-auto max-w-md px-5 pt-6">
-        <Hero />
-        <TrustBlock />
-        <QuickAccess />
-        <Featured />
-        <SupportForm />
-      </main>
-      <BottomNav />
+      {/* ambient pink wash */}
+      <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(ellipse_at_top,oklch(0.92_0.08_350)_0%,transparent_70%)]" />
+      <div className="mx-auto max-w-md">
+        <TopBar />
+        <main key={tab} className="px-5 pb-32 pt-2 animate-[fade-in_220ms_ease-out]">
+          {tab === "home" && <HomeScreen onNavigate={setTab} />}
+          {tab === "agenda" && <SimpleScreen title="Agenda" subtitle="Próximos encontros e eventos" />}
+          {tab === "propostas" && <SimpleScreen title="Propostas" subtitle="Tudo que vamos defender" />}
+          {tab === "apoie" && <SimpleScreen title="Apoie" subtitle="Some-se à campanha" />}
+          {tab === "perfil" && <SimpleScreen title="Perfil" subtitle="Sua conta e preferências" />}
+        </main>
+      </div>
+      <BottomNav tab={tab} setTab={setTab} />
     </div>
   );
 }
 
-function Hero() {
+function TopBar() {
   return (
-    <section className="relative">
-      <div className="absolute inset-x-0 -top-6 -z-10 h-64 rounded-b-[3rem] bg-gradient-to-b from-accent to-transparent" />
-      <div className="flex flex-col items-center text-center pt-2">
-        <div className="relative">
-          <div
-            className="absolute inset-0 -m-1 rounded-full"
-            style={{ background: "var(--gradient-primary)" }}
-          />
-          <img
-            src={candidatePhoto}
-            alt="Bob Fllay, candidato"
-            width={128}
-            height={128}
-            className="relative h-32 w-32 rounded-full object-cover ring-4 ring-background"
-          />
-          <span className="absolute -bottom-1 right-0 flex items-center gap-1 rounded-full bg-primary px-2 py-1 text-[10px] font-semibold text-primary-foreground shadow-md">
-            <ShieldCheck className="h-3 w-3" />
-            Oficial
-          </span>
-        </div>
-        <h1 className="mt-5 text-3xl font-bold tracking-tight text-foreground">
-          Bob Fllay
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Deputado Estadual · Candidato a Deputado Federal
-        </p>
-        <p className="mt-4 text-base leading-relaxed text-foreground/80 max-w-sm">
-          “Trabalho sério, presença real e compromisso com quem mais precisa.”
-        </p>
-        <div className="mt-6 flex w-full flex-col gap-3">
-          <a
-            href="#apoio"
-            className="inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-4 text-base font-semibold text-primary-foreground shadow-[var(--shadow-soft)] transition active:scale-[0.98]"
-            style={{ background: "var(--gradient-primary)" }}
-          >
-            <MessageCircle className="h-5 w-5" />
-            Deixe sua mensagem
-          </a>
-          <a
-            href="#agenda"
-            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-border bg-card px-6 py-4 text-base font-semibold text-foreground transition hover:bg-secondary active:scale-[0.98]"
-          >
-            <Calendar className="h-5 w-5" />
-            Ver agenda
-          </a>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function TrustBlock() {
-  return (
-    <section className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-      <div className="flex items-start gap-3">
-        <div className="rounded-xl bg-accent p-2.5">
-          <ShieldCheck className="h-5 w-5 text-primary" />
+    <header className="sticky top-0 z-40 flex items-center justify-between px-5 pb-3 pt-5 backdrop-blur-xl bg-background/60 border-b border-border/40">
+      <div className="flex items-center gap-2.5">
+        <div className="relative h-9 w-9 overflow-hidden rounded-full ring-2 ring-primary/30">
+          <img src={candidatePhoto} alt="" className="h-full w-full object-cover" />
         </div>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-            App oficial do candidato
-          </p>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            Este é o canal oficial para acompanhar a agenda, conhecer as propostas,
-            apoiar a campanha e falar diretamente com a equipe.
+          <p className="text-[11px] leading-tight text-muted-foreground">Bem-vindo ao app de</p>
+          <p className="text-sm font-bold leading-tight text-foreground">Bob Fllay</p>
+        </div>
+      </div>
+      <button
+        aria-label="Notificações"
+        className="relative flex h-10 w-10 items-center justify-center rounded-full bg-card border border-border shadow-[var(--shadow-card)] active:scale-95 transition"
+      >
+        <Bell className="h-4.5 w-4.5 text-foreground" />
+        <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-primary ring-2 ring-card" />
+      </button>
+    </header>
+  );
+}
+
+function HomeScreen({ onNavigate }: { onNavigate: (t: any) => void }) {
+  return (
+    <div className="space-y-6">
+      <HeaderCard />
+      <PrimaryAction />
+      <QuickTiles onNavigate={onNavigate} />
+      <StatsRow />
+      <SectionHeader title="Próximo evento" actionLabel="Agenda" onAction={() => onNavigate("agenda")} />
+      <EventCard />
+      <SectionHeader title="Proposta em destaque" actionLabel="Ver todas" onAction={() => onNavigate("propostas")} />
+      <ProposalCard />
+      <SupportInline />
+    </div>
+  );
+}
+
+function HeaderCard() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [y, setY] = useState(0);
+  useEffect(() => {
+    const onScroll = () => setY(window.scrollY);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return (
+    <section
+      ref={ref}
+      className="relative overflow-hidden rounded-3xl border border-border/60 bg-card shadow-[var(--shadow-card)]"
+    >
+      <div
+        className="absolute inset-0"
+        style={{
+          background: "var(--gradient-primary)",
+          transform: `translateY(${y * -0.15}px) scale(1.1)`,
+        }}
+      />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.35),transparent_50%)]" />
+      <div className="relative flex items-center gap-4 p-5">
+        <div className="relative">
+          <img
+            src={candidatePhoto}
+            alt="Bob Fllay"
+            className="h-20 w-20 rounded-2xl object-cover ring-4 ring-white/40 shadow-lg"
+            style={{ transform: `translateY(${y * 0.05}px)` }}
+          />
+        </div>
+        <div className="min-w-0 flex-1 text-primary-foreground">
+          <div className="inline-flex items-center gap-1 rounded-full bg-white/20 backdrop-blur px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider">
+            <ShieldCheck className="h-3 w-3" /> App oficial do candidato
+          </div>
+          <h1 className="mt-1.5 text-xl font-bold leading-tight">Bob Fllay</h1>
+          <p className="text-[12px] opacity-90 leading-snug">
+            Deputado Estadual · Candidato a Federal
           </p>
         </div>
       </div>
+      <p className="relative px-5 pb-5 text-[13px] leading-relaxed text-primary-foreground/95">
+        “Trabalho sério, presença real e compromisso com quem mais precisa.”
+      </p>
     </section>
   );
 }
 
-function QuickAccess() {
-  const cards = [
-    {
-      icon: Calendar,
-      title: "Agenda",
-      subtitle: "Encontros e eventos públicos",
-      href: "#agenda",
-    },
-    {
-      icon: FileText,
-      title: "Propostas",
-      subtitle: "O que vamos defender",
-      href: "#propostas",
-    },
-    {
-      icon: Heart,
-      title: "Apoie",
-      subtitle: "Some-se à campanha",
-      href: "#apoio",
-    },
+function PrimaryAction() {
+  return (
+    <a
+      href="#apoio"
+      className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)] transition active:scale-[0.98]"
+    >
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-primary-foreground shadow-[var(--shadow-soft)]" style={{ background: "var(--gradient-primary)" }}>
+        <MessageCircle className="h-5 w-5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[15px] font-bold text-foreground">Deixe sua mensagem</p>
+        <p className="text-xs text-muted-foreground">Fale direto com a equipe do Bob</p>
+      </div>
+      <ArrowUpRight className="h-5 w-5 text-primary transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+    </a>
+  );
+}
+
+function QuickTiles({ onNavigate }: { onNavigate: (t: any) => void }) {
+  const tiles = [
+    { icon: Calendar, label: "Agenda", tab: "agenda" as const },
+    { icon: FileText, label: "Propostas", tab: "propostas" as const },
+    { icon: Heart, label: "Apoie", tab: "apoie" as const },
+    { icon: Users, label: "Voluntários", tab: "apoie" as const },
   ];
   return (
-    <section className="mt-8">
-      <h2 className="mb-3 px-1 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-        Acesso rápido
-      </h2>
-      <div className="grid grid-cols-3 gap-3">
-        {cards.map(({ icon: Icon, title, subtitle, href }) => (
-          <a
-            key={title}
-            href={href}
-            className="group flex flex-col items-start gap-2 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)] transition active:scale-[0.97]"
-          >
-            <div className="rounded-xl bg-accent p-2 transition group-hover:bg-primary/10">
-              <Icon className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-foreground">{title}</p>
-              <p className="mt-0.5 text-[11px] leading-tight text-muted-foreground">
-                {subtitle}
-              </p>
-            </div>
-          </a>
-        ))}
-      </div>
-    </section>
+    <div className="grid grid-cols-4 gap-2.5">
+      {tiles.map(({ icon: Icon, label, tab }) => (
+        <button
+          key={label}
+          onClick={() => onNavigate(tab)}
+          className="group flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)] transition active:scale-95"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent transition group-hover:bg-primary/10">
+            <Icon className="h-5 w-5 text-primary" />
+          </div>
+          <span className="text-[10.5px] font-semibold text-foreground">{label}</span>
+        </button>
+      ))}
+    </div>
   );
 }
 
-function Featured() {
+function StatsRow() {
   return (
-    <section className="mt-10 space-y-6">
-      <div id="agenda">
-        <div className="mb-3 flex items-center justify-between px-1">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Próximo evento
-          </h2>
-          <a href="#agenda" className="text-xs font-semibold text-primary">
-            Ver tudo
-          </a>
-        </div>
-        <article className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-          <div className="flex items-center gap-2">
-            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
-              Hoje
+    <div className="grid grid-cols-3 gap-2.5">
+      <Stat target={148} label="Eventos" />
+      <Stat target={32} label="Cidades" suffix="" />
+      <Stat target={12400} label="Apoiadores" compact />
+    </div>
+  );
+}
+
+function Stat({ target, label, suffix = "", compact = false }: { target: number; label: string; suffix?: string; compact?: boolean }) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    const start = performance.now();
+    const dur = 1100;
+    let raf = 0;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setVal(Math.round(target * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target]);
+  const display = compact && val >= 1000 ? `${(val / 1000).toFixed(1)}k` : val.toLocaleString("pt-BR");
+  return (
+    <div className="rounded-2xl border border-border bg-card p-3 text-center shadow-[var(--shadow-card)]">
+      <p className="text-lg font-extrabold tracking-tight text-foreground">
+        {display}{suffix}
+      </p>
+      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+    </div>
+  );
+}
+
+function SectionHeader({ title, actionLabel, onAction }: { title: string; actionLabel: string; onAction: () => void }) {
+  return (
+    <div className="flex items-center justify-between px-1 pt-2">
+      <h2 className="text-[13px] font-bold tracking-tight text-foreground">{title}</h2>
+      <button onClick={onAction} className="inline-flex items-center gap-0.5 text-xs font-semibold text-primary">
+        {actionLabel} <ChevronRight className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+}
+
+function EventCard() {
+  return (
+    <Reveal>
+      <article className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)] active:scale-[0.99] transition">
+        <div className="flex gap-4">
+          <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-2xl text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>
+            <span className="text-[10px] font-semibold uppercase opacity-90">Hoje</span>
+            <span className="text-xl font-extrabold leading-none">18:30</span>
+          </div>
+          <div className="min-w-0 flex-1">
+            <span className="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+              Aberto ao público
             </span>
-            <span className="text-xs text-muted-foreground">Aberto ao público</span>
-          </div>
-          <h3 className="mt-3 text-lg font-bold leading-snug text-foreground">
-            Reunião com lideranças locais
-          </h3>
-          <div className="mt-3 flex flex-col gap-1.5 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-primary" />
-              Hoje, às 18h30
+            <h3 className="mt-1.5 text-[15px] font-bold leading-snug text-foreground">
+              Reunião com lideranças locais
+            </h3>
+            <div className="mt-2 flex flex-col gap-1 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5 text-primary" />
+                Hoje, 18h30 – 20h00
+              </div>
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5 text-primary" />
+                Centro Comunitário · Bairro União
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-primary" />
-              Centro Comunitário · Bairro União
-            </div>
           </div>
-        </article>
-      </div>
-
-      <div id="propostas">
-        <div className="mb-3 flex items-center justify-between px-1">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Propostas em destaque
-          </h2>
-          <a href="#propostas" className="text-xs font-semibold text-primary">
-            Ver tudo
-          </a>
         </div>
-        <div className="space-y-3">
-          <ProposalCard
-            icon={Stethoscope}
-            title="Saúde com mais acesso e estrutura"
-            description="Ampliar UBSs, reduzir filas e levar atendimento de qualidade para quem mais precisa."
-          />
-          <ProposalCard
-            icon={GraduationCap}
-            title="Educação e oportunidades para jovens"
-            description="Escolas em tempo integral, cursos técnicos e primeiro emprego com dignidade."
-          />
-        </div>
-      </div>
-    </section>
+      </article>
+    </Reveal>
   );
 }
 
-function ProposalCard({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: typeof Heart;
-  title: string;
-  description: string;
-}) {
+function ProposalCard() {
   return (
-    <article className="flex gap-4 rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent">
-        <Icon className="h-6 w-6 text-primary" />
-      </div>
-      <div>
-        <h3 className="text-base font-semibold leading-snug text-foreground">
-          {title}
-        </h3>
-        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-          {description}
+    <Reveal>
+      <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
+        <div className="flex items-center gap-3 p-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-accent">
+            <Stethoscope className="h-5 w-5 text-primary" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">Saúde</p>
+            <h3 className="text-[15px] font-bold leading-snug text-foreground">
+              Saúde com mais acesso e estrutura
+            </h3>
+          </div>
+        </div>
+        <p className="px-4 pb-4 text-[13px] leading-relaxed text-muted-foreground">
+          Ampliar UBSs, reduzir filas e levar atendimento de qualidade para quem mais precisa nos bairros.
         </p>
-      </div>
-    </article>
+        <div className="flex items-center justify-between border-t border-border bg-secondary/40 px-4 py-2.5">
+          <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+            <GraduationCap className="h-3.5 w-3.5 text-primary" /> +6 propostas relacionadas
+          </div>
+          <button className="text-xs font-semibold text-primary">Ler mais</button>
+        </div>
+      </article>
+    </Reveal>
   );
 }
 
-function SupportForm() {
+function SupportInline() {
   const [submitting, setSubmitting] = useState(false);
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
@@ -275,115 +308,133 @@ function SupportForm() {
       (e.target as HTMLFormElement).reset();
     }, 600);
   };
-
   return (
-    <section
-      id="apoio"
-      className="mt-10 overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-card)]"
-    >
-      <div
-        className="px-5 py-5 text-primary-foreground"
-        style={{ background: "var(--gradient-primary)" }}
-      >
+    <section id="apoio" className="overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-card)]">
+      <div className="px-5 py-4 text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>
         <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5" />
-          <span className="text-xs font-semibold uppercase tracking-wider opacity-90">
-            Junte-se a nós
-          </span>
+          <Sparkles className="h-4 w-4" />
+          <span className="text-[10px] font-semibold uppercase tracking-wider opacity-90">Sou seu apoiador</span>
         </div>
-        <h2 className="mt-1 text-2xl font-bold">Sou seu apoiador</h2>
-        <p className="mt-1 text-sm opacity-95">
-          Conte com quem está ao seu lado. Mande um recado para o Bob.
-        </p>
+        <h2 className="mt-0.5 text-lg font-bold">Deixe sua mensagem</h2>
+        <p className="text-xs opacity-95">Sua voz chega direto para o Bob.</p>
       </div>
-
-      <form onSubmit={handleSubmit} className="space-y-3 p-5">
-        <Field label="Nome" name="nome" placeholder="Como podemos te chamar?" required />
-        <Field label="Telefone" name="telefone" placeholder="(00) 00000-0000" type="tel" required />
-        <Field label="Bairro" name="bairro" placeholder="Onde você mora?" required />
-        <div>
-          <label className="mb-1.5 block text-xs font-semibold text-foreground">
-            Mensagem
-          </label>
-          <textarea
-            name="mensagem"
-            rows={3}
-            required
-            placeholder="Escreva sua mensagem ou sugestão..."
-            className="w-full resize-none rounded-2xl border border-input bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
-        </div>
+      <form onSubmit={handleSubmit} className="space-y-2.5 p-4">
+        <Field name="nome" placeholder="Seu nome" required />
+        <Field name="telefone" placeholder="Telefone (WhatsApp)" type="tel" required />
+        <textarea
+          name="mensagem"
+          rows={3}
+          required
+          placeholder="Escreva sua mensagem..."
+          className="w-full resize-none rounded-2xl border border-input bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+        />
         <button
           type="submit"
           disabled={submitting}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-4 text-base font-semibold text-primary-foreground shadow-[var(--shadow-soft)] transition active:scale-[0.98] disabled:opacity-70"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-[var(--shadow-soft)] transition active:scale-[0.98] disabled:opacity-70"
           style={{ background: "var(--gradient-primary)" }}
         >
-          <Send className="h-5 w-5" />
+          <Send className="h-4 w-4" />
           {submitting ? "Enviando..." : "Enviar mensagem"}
         </button>
-        <p className="text-center text-xs text-muted-foreground">
-          Sua mensagem chega direto para a equipe.
-        </p>
       </form>
     </section>
   );
 }
 
-function Field({
-  label,
-  name,
-  placeholder,
-  type = "text",
-  required,
-}: {
-  label: string;
-  name: string;
-  placeholder: string;
-  type?: string;
-  required?: boolean;
-}) {
+function Field({ name, placeholder, type = "text", required }: { name: string; placeholder: string; type?: string; required?: boolean }) {
   return (
-    <div>
-      <label className="mb-1.5 block text-xs font-semibold text-foreground">
-        {label}
-      </label>
-      <input
-        type={type}
-        name={name}
-        required={required}
-        placeholder={placeholder}
-        className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-      />
+    <input
+      type={type}
+      name={name}
+      required={required}
+      placeholder={placeholder}
+      className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+    />
+  );
+}
+
+function SimpleScreen({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <h1 className="text-2xl font-extrabold tracking-tight text-foreground">{title}</h1>
+        <p className="text-sm text-muted-foreground">{subtitle}</p>
+      </div>
+      <div className="rounded-2xl border border-dashed border-border bg-card/60 p-8 text-center text-sm text-muted-foreground">
+        Em breve nesta tela.
+      </div>
     </div>
   );
 }
 
-function BottomNav() {
-  const items = [
-    { icon: Home, label: "Início", href: "#", active: true },
-    { icon: Calendar, label: "Agenda", href: "#agenda" },
-    { icon: FileText, label: "Propostas", href: "#propostas" },
-    { icon: Heart, label: "Apoie", href: "#apoio" },
-    { icon: MessageCircle, label: "Contato", href: "#apoio" },
-  ];
+function Reveal({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setShown(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.15 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/95 backdrop-blur-md">
-      <div className="mx-auto flex max-w-md items-center justify-around px-2 py-2">
-        {items.map(({ icon: Icon, label, href, active }) => (
-          <a
-            key={label}
-            href={href}
-            className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 transition ${
-              active ? "text-primary" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 2} />
-            <span className={`text-[10px] ${active ? "font-semibold" : "font-medium"}`}>
-              {label}
-            </span>
-          </a>
-        ))}
+    <div
+      ref={ref}
+      className="transition-all duration-500 ease-out"
+      style={{
+        opacity: shown ? 1 : 0,
+        transform: shown ? "translateY(0)" : "translateY(16px)",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function BottomNav({ tab, setTab }: { tab: string; setTab: (t: any) => void }) {
+  const items = [
+    { key: "home", icon: Home, label: "Início" },
+    { key: "agenda", icon: Calendar, label: "Agenda" },
+    { key: "propostas", icon: FileText, label: "Propostas" },
+    { key: "apoie", icon: Heart, label: "Apoie" },
+    { key: "perfil", icon: User, label: "Perfil" },
+  ] as const;
+  return (
+    <nav className="fixed inset-x-0 bottom-0 z-50 pb-[env(safe-area-inset-bottom)]">
+      <div className="mx-auto max-w-md px-4 pb-3">
+        <div className="flex items-center justify-around rounded-3xl border border-border/60 bg-card/85 px-2 py-2 shadow-[0_10px_30px_-12px_oklch(0.5_0.1_340_/_0.25)] backdrop-blur-xl">
+          {items.map(({ key, icon: Icon, label }) => {
+            const active = tab === key;
+            return (
+              <button
+                key={key}
+                onClick={() => setTab(key)}
+                className="relative flex flex-1 flex-col items-center gap-0.5 rounded-2xl px-2 py-1.5 transition active:scale-95"
+              >
+                <div
+                  className={`flex h-9 w-9 items-center justify-center rounded-xl transition ${
+                    active ? "text-primary-foreground shadow-[var(--shadow-soft)]" : "text-muted-foreground"
+                  }`}
+                  style={active ? { background: "var(--gradient-primary)" } : undefined}
+                >
+                  <Icon className="h-4.5 w-4.5" strokeWidth={active ? 2.5 : 2} />
+                </div>
+                <span className={`text-[10px] ${active ? "font-bold text-primary" : "font-medium text-muted-foreground"}`}>
+                  {label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );
