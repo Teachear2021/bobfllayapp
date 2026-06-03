@@ -18,6 +18,15 @@ import {
   Bell,
   ChevronRight,
   ArrowUpRight,
+  Share2,
+  Vote,
+  Trophy,
+  Copy,
+  Building2,
+  Award,
+  PlayCircle,
+  Check,
+  TrendingUp,
 } from "lucide-react";
 import candidateAsset from "@/assets/candidate.png.asset.json";
 const candidatePhoto = candidateAsset.url;
