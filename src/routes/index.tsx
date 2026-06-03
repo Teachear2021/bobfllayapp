@@ -694,7 +694,7 @@ function SupportInline({ user }: { user: any }) {
   );
 }
 
-function Field({ name, placeholder, type = "text", required }: { name: string; placeholder: string; type?: string; required?: boolean }) {
+function Field({ name, placeholder, type = "text", required, defaultValue }: { name: string; placeholder: string; type?: string; required?: boolean; defaultValue?: string }) {
   return (
     <input
       type={type}
