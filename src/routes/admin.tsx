@@ -882,7 +882,7 @@ function AdminApp() {
           {screen === "voluntarios" && <VolunteersScreen />}
           {screen === "agenda" && <AgendaScreen />}
           {screen === "propostas" && <ProposalsScreen />}
-          {screen === "conteudo" && <GenericScreen icon={Settings} title="Conteúdo do app" desc="Edite textos, fotos e banners." />}
+          {screen === "conteudo" && <ContentScreen />}
           {screen === "analytics" && <GenericScreen icon={BarChart3} title="Analytics" desc="Métricas de campanha em breve." />}
         </main>
       </div>
