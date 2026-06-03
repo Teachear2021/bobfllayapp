@@ -55,6 +55,9 @@ export const Route = createFileRoute("/")({
 
 function AppShell() {
   const [tab, setTab] = useState<"home" | "agenda" | "propostas" | "apoie" | "perfil">("home");
+  const { user, loading } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[oklch(0.985_0.005_330)]">
       <Toaster position="top-center" />
@@ -63,17 +66,23 @@ function AppShell() {
       <div className="mx-auto max-w-md">
         <TopBar />
         <main key={tab} className="px-5 pb-32 pt-2 animate-[fade-in_220ms_ease-out]">
-          {tab === "home" && <HomeScreen onNavigate={setTab} />}
+          {tab === "home" && <HomeScreen onNavigate={setTab} user={user} openAuth={() => setShowAuthModal(true)} />}
           {tab === "agenda" && <SimpleScreen title="Agenda" subtitle="Próximos encontros e eventos" />}
           {tab === "propostas" && <SimpleScreen title="Propostas" subtitle="Tudo que vamos defender" />}
           {tab === "apoie" && <SimpleScreen title="Apoie" subtitle="Some-se à campanha" />}
-          {tab === "perfil" && <SimpleScreen title="Perfil" subtitle="Sua conta e preferências" />}
+          {tab === "perfil" && <ProfileScreen user={user} openAuth={() => setShowAuthModal(true)} />}
         </main>
       </div>
       <BottomNav tab={tab} setTab={setTab} />
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+        onSuccess={() => setTab("home")}
+      />
     </div>
   );
 }
+
 
 function TopBar() {
   const [open, setOpen] = useState(false);
