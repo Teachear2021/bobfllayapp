@@ -27,11 +27,17 @@ import {
   PlayCircle,
   Check,
   TrendingUp,
+  LogOut,
 } from "lucide-react";
 import candidateAsset from "@/assets/candidate.png.asset.json";
 const candidatePhoto = candidateAsset.url;
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { AuthModal } from "@/components/AuthModal";
+import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -49,6 +55,9 @@ export const Route = createFileRoute("/")({
 
 function AppShell() {
   const [tab, setTab] = useState<"home" | "agenda" | "propostas" | "apoie" | "perfil">("home");
+  const { user, loading } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[oklch(0.985_0.005_330)]">
       <Toaster position="top-center" />
@@ -57,17 +66,23 @@ function AppShell() {
       <div className="mx-auto max-w-md">
         <TopBar />
         <main key={tab} className="px-5 pb-32 pt-2 animate-[fade-in_220ms_ease-out]">
-          {tab === "home" && <HomeScreen onNavigate={setTab} />}
+          {tab === "home" && <HomeScreen onNavigate={setTab} user={user} openAuth={() => setShowAuthModal(true)} />}
           {tab === "agenda" && <SimpleScreen title="Agenda" subtitle="Próximos encontros e eventos" />}
           {tab === "propostas" && <SimpleScreen title="Propostas" subtitle="Tudo que vamos defender" />}
           {tab === "apoie" && <SimpleScreen title="Apoie" subtitle="Some-se à campanha" />}
-          {tab === "perfil" && <SimpleScreen title="Perfil" subtitle="Sua conta e preferências" />}
+          {tab === "perfil" && <ProfileScreen user={user} openAuth={() => setShowAuthModal(true)} />}
         </main>
       </div>
       <BottomNav tab={tab} setTab={setTab} />
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+        onSuccess={() => setTab("home")}
+      />
     </div>
   );
 }
+
 
 function TopBar() {
   const [open, setOpen] = useState(false);
@@ -130,7 +145,7 @@ function TopBar() {
 }
 
 
-function HomeScreen({ onNavigate }: { onNavigate: (t: any) => void }) {
+function HomeScreen({ onNavigate, user, openAuth }: { onNavigate: (t: any) => void, user: any, openAuth: () => void }) {
   return (
     <div className="space-y-6">
       <HeaderCard />
@@ -147,12 +162,13 @@ function HomeScreen({ onNavigate }: { onNavigate: (t: any) => void }) {
       <DeliveriesCard />
       <SectionHeader title="Proposta em destaque" actionLabel="Ver todas" onAction={() => onNavigate("propostas")} />
       <ProposalCard />
-      <MultiplierCard />
+      <MultiplierCard user={user} openAuth={openAuth} />
       <EndorsementsCard />
-      <SupportInline />
+      <SupportInline user={user} />
     </div>
   );
 }
+
 
 function StoriesRow() {
   const items = [
@@ -314,12 +330,38 @@ function DeliveriesCard() {
   );
 }
 
-function MultiplierCard() {
-  const [count] = useState(7);
+function MultiplierCard({ user, openAuth }: { user: any, openAuth: () => void }) {
+  const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(false);
   const goal = 10;
+  
+  useEffect(() => {
+    if (user) {
+      setLoading(true);
+      // Fetch real referral count
+      supabase
+        .from("referrals")
+        .select("id", { count: "exact" })
+        .eq("referrer_id", user.id)
+        .then(({ count: referralCount }) => {
+          if (referralCount !== null) setCount(referralCount);
+          setLoading(false);
+        });
+    } else {
+      setCount(0);
+    }
+  }, [user]);
+
   const pct = Math.min(100, (count / goal) * 100);
-  const link = "bobfllay.app/r/MARIA42";
+  // Using user ID as a simple referral code, or could be a random string from profile
+  const referralCode = user?.id?.slice(0, 8).toUpperCase() || "LOGAR";
+  const link = `bobfllay.app/r/${referralCode}`;
+  
   const share = () => {
+    if (!user) {
+      openAuth();
+      return;
+    }
     const text = `Vamos juntos eleger Bob Fllay 13567 para Deputado Federal! Confirme seu voto: https://${link}`;
     if (navigator.share) navigator.share({ title: "Bob Fllay 13567", text }).catch(() => {});
     else {
@@ -327,6 +369,7 @@ function MultiplierCard() {
       toast.success("Link copiado!");
     }
   };
+
   return (
     <Reveal>
       <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
@@ -342,7 +385,7 @@ function MultiplierCard() {
         </div>
         <div className="px-4">
           <div className="flex items-center justify-between text-[11px] font-semibold">
-            <span className="text-foreground">{count} de {goal} confirmados</span>
+            <span className="text-foreground">{loading ? "Carregando..." : `${count} de ${goal} confirmados`}</span>
             <span className="text-primary">{Math.round(pct)}%</span>
           </div>
           <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-secondary">
@@ -350,15 +393,16 @@ function MultiplierCard() {
           </div>
         </div>
         <div className="mt-3 flex items-center gap-2 border-t border-border bg-secondary/40 px-4 py-2.5">
-          <code className="flex-1 truncate text-[11px] text-muted-foreground">{link}</code>
+          <code className="flex-1 truncate text-[11px] text-muted-foreground">{user ? link : "Entre para gerar seu link"}</code>
           <button onClick={share} className="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-[11px] font-bold text-primary-foreground active:scale-95">
-            <Share2 className="h-3.5 w-3.5" /> Compartilhar
+            <Share2 className="h-3.5 w-3.5" /> {user ? "Compartilhar" : "Entrar"}
           </button>
         </div>
       </section>
     </Reveal>
   );
 }
+
 
 function EndorsementsCard() {
   const list = [
@@ -588,7 +632,7 @@ function ProposalCard() {
   );
 }
 
-function SupportInline() {
+function SupportInline({ user }: { user: any }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -625,8 +669,8 @@ function SupportInline() {
       </button>
       {open && (
         <form onSubmit={handleSubmit} className="space-y-2.5 p-4 animate-[fade-in_200ms_ease-out]">
-          <Field name="nome" placeholder="Seu nome" required />
-          <Field name="telefone" placeholder="Telefone (WhatsApp)" type="tel" required />
+          <Field name="nome" placeholder="Seu nome completo" required defaultValue={user?.user_metadata?.full_name || ""} />
+          <Field name="telefone" placeholder="Telefone (WhatsApp)" type="tel" required defaultValue={user?.phone || ""} />
           <textarea
             name="mensagem"
             rows={3}
@@ -644,24 +688,128 @@ function SupportInline() {
             {submitting ? "Enviando..." : "Enviar mensagem"}
           </button>
         </form>
+
       )}
     </section>
   );
 }
 
-function Field({ name, placeholder, type = "text", required }: { name: string; placeholder: string; type?: string; required?: boolean }) {
+function Field({ name, placeholder, type = "text", required, defaultValue }: { name: string; placeholder: string; type?: string; required?: boolean; defaultValue?: string }) {
   return (
     <input
       type={type}
       name={name}
+      defaultValue={defaultValue}
       required={required}
       placeholder={placeholder}
       className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
     />
+
+  );
+}
+
+function ProfileScreen({ user, openAuth }: { user: any, openAuth: () => void }) {
+  const [profile, setProfile] = useState<{ full_name: string | null; phone: string | null } | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setLoading(true);
+      supabase
+        .from("profiles")
+        .select("full_name, phone")
+        .eq("id", user.id)
+        .single()
+        .then(({ data }) => {
+          setProfile(data);
+          setLoading(false);
+        });
+    }
+  }, [user]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast.success("Sessão encerrada");
+  };
+
+  if (!user) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight text-foreground">Perfil</h1>
+          <p className="text-sm text-muted-foreground">Sua conta e preferências</p>
+        </div>
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary mb-4">
+            <User className="h-8 w-8" />
+          </div>
+          <h3 className="text-lg font-bold text-foreground">Você ainda não entrou</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Entre com seu telefone para acompanhar suas indicações e receber novidades.</p>
+          <button
+            onClick={openAuth}
+            className="mt-6 rounded-xl bg-primary px-8 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all active:scale-95"
+          >
+            Entrar no App
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight text-foreground">Meu Perfil</h1>
+          <p className="text-sm text-muted-foreground">Olá, {profile?.full_name || "Apoiador"}</p>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-muted-foreground active:scale-95 transition"
+        >
+          <LogOut className="h-4.5 w-4.5" />
+        </button>
+      </div>
+
+      <div className="rounded-3xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+        <div className="flex items-center gap-4">
+          <div className="h-16 w-16 overflow-hidden rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+            <User className="h-8 w-8" />
+          </div>
+          <div className="flex-1">
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary">Apoiador Confirmado</p>
+            <p className="text-lg font-bold text-foreground">{profile?.full_name || "Completar cadastro..."}</p>
+            <p className="text-sm text-muted-foreground">{profile?.phone}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-3">
+        <button className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 text-left active:scale-[0.99] transition">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-primary">
+              <Calendar className="h-4.5 w-4.5" />
+            </div>
+            <span className="text-sm font-semibold">Minha agenda</span>
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </button>
+        <button className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 text-left active:scale-[0.99] transition">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-primary">
+              <MessageCircle className="h-4.5 w-4.5" />
+            </div>
+            <span className="text-sm font-semibold">Mensagens</span>
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </button>
+      </div>
+    </div>
   );
 }
 
 function SimpleScreen({ title, subtitle }: { title: string; subtitle: string }) {
+
   return (
     <div className="space-y-4">
       <div>
