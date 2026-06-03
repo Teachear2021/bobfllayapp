@@ -669,8 +669,8 @@ function SupportInline() {
       </button>
       {open && (
         <form onSubmit={handleSubmit} className="space-y-2.5 p-4 animate-[fade-in_200ms_ease-out]">
-          <Field name="nome" placeholder="Seu nome" required />
-          <Field name="telefone" placeholder="Telefone (WhatsApp)" type="tel" required />
+          <Field name="nome" placeholder="Seu nome completo" required defaultValue={user?.user_metadata?.full_name || ""} />
+          <Field name="telefone" placeholder="Telefone (WhatsApp)" type="tel" required defaultValue={user?.phone || ""} />
           <textarea
             name="mensagem"
             rows={3}
@@ -688,6 +688,7 @@ function SupportInline() {
             {submitting ? "Enviando..." : "Enviar mensagem"}
           </button>
         </form>
+
       )}
     </section>
   );
