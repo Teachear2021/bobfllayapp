@@ -699,10 +699,12 @@ function Field({ name, placeholder, type = "text", required, defaultValue }: { n
     <input
       type={type}
       name={name}
+      defaultValue={defaultValue}
       required={required}
       placeholder={placeholder}
       className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
     />
+
   );
 }
 
