@@ -330,12 +330,38 @@ function DeliveriesCard() {
   );
 }
 
-function MultiplierCard() {
-  const [count] = useState(7);
+function MultiplierCard({ user, openAuth }: { user: any, openAuth: () => void }) {
+  const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(false);
   const goal = 10;
+  
+  useEffect(() => {
+    if (user) {
+      setLoading(true);
+      // Fetch real referral count
+      supabase
+        .from("referrals")
+        .select("id", { count: "exact" })
+        .eq("referrer_id", user.id)
+        .then(({ count: referralCount }) => {
+          if (referralCount !== null) setCount(referralCount);
+          setLoading(false);
+        });
+    } else {
+      setCount(0);
+    }
+  }, [user]);
+
   const pct = Math.min(100, (count / goal) * 100);
-  const link = "bobfllay.app/r/MARIA42";
+  // Using user ID as a simple referral code, or could be a random string from profile
+  const referralCode = user?.id?.slice(0, 8).toUpperCase() || "LOGAR";
+  const link = `bobfllay.app/r/${referralCode}`;
+  
   const share = () => {
+    if (!user) {
+      openAuth();
+      return;
+    }
     const text = `Vamos juntos eleger Bob Fllay 13567 para Deputado Federal! Confirme seu voto: https://${link}`;
     if (navigator.share) navigator.share({ title: "Bob Fllay 13567", text }).catch(() => {});
     else {
@@ -343,6 +369,7 @@ function MultiplierCard() {
       toast.success("Link copiado!");
     }
   };
+
   return (
     <Reveal>
       <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
@@ -358,7 +385,7 @@ function MultiplierCard() {
         </div>
         <div className="px-4">
           <div className="flex items-center justify-between text-[11px] font-semibold">
-            <span className="text-foreground">{count} de {goal} confirmados</span>
+            <span className="text-foreground">{loading ? "Carregando..." : `${count} de ${goal} confirmados`}</span>
             <span className="text-primary">{Math.round(pct)}%</span>
           </div>
           <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-secondary">
@@ -366,15 +393,16 @@ function MultiplierCard() {
           </div>
         </div>
         <div className="mt-3 flex items-center gap-2 border-t border-border bg-secondary/40 px-4 py-2.5">
-          <code className="flex-1 truncate text-[11px] text-muted-foreground">{link}</code>
+          <code className="flex-1 truncate text-[11px] text-muted-foreground">{user ? link : "Entre para gerar seu link"}</code>
           <button onClick={share} className="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-[11px] font-bold text-primary-foreground active:scale-95">
-            <Share2 className="h-3.5 w-3.5" /> Compartilhar
+            <Share2 className="h-3.5 w-3.5" /> {user ? "Compartilhar" : "Entrar"}
           </button>
         </div>
       </section>
     </Reveal>
   );
 }
+
 
 function EndorsementsCard() {
   const list = [
