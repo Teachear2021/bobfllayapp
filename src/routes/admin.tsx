@@ -33,6 +33,7 @@ import {
   Trophy,
   ShieldCheck,
   Share2,
+  ArrowLeft,
 } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
@@ -857,10 +858,21 @@ function AdminApp() {
       <div className="relative max-w-md mx-auto px-4 pt-4 pb-32">
         {/* Header */}
         <header className="sticky top-0 z-20 -mx-4 px-4 py-3 bg-background/70 backdrop-blur-xl border-b border-border/60">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">Admin</p>
-              <h1 className="text-base font-bold tracking-tight">{TITLES[screen]}</h1>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              {screen !== "dashboard" && (
+                <button
+                  onClick={() => setScreen("dashboard")}
+                  aria-label="Voltar"
+                  className="h-9 w-9 grid place-items-center rounded-full bg-card border shadow-sm active:scale-95 transition shrink-0"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </button>
+              )}
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">Admin</p>
+                <h1 className="text-base font-bold tracking-tight truncate">{TITLES[screen]}</h1>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <button className="h-9 w-9 grid place-items-center rounded-full bg-card border shadow-sm active:scale-95 transition">
