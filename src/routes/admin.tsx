@@ -823,18 +823,6 @@ function GenericScreen({ icon: Icon, title, desc }: { icon: any; title: string; 
   );
 }
 
-function GenericScreen({ icon: Icon, title, desc }: { icon: any; title: string; desc: string }) {
-  return (
-    <div className="rounded-2xl bg-card border p-8 shadow-[var(--shadow-card)] text-center">
-      <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary grid place-items-center mx-auto mb-3">
-        <Icon className="h-5 w-5" />
-      </div>
-      <p className="font-semibold">{title}</p>
-      <p className="text-xs text-muted-foreground mt-1">{desc}</p>
-    </div>
-  );
-}
-
 const NAV: { id: Screen; label: string; icon: any }[] = [
   { id: "dashboard", label: "Painel", icon: LayoutDashboard },
   { id: "leads", label: "Leads", icon: Users },
