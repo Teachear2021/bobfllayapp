@@ -132,7 +132,7 @@ function TopBar() {
         >
           <Bell className="h-4.5 w-4.5 text-foreground" />
           <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-primary ring-2 ring-card" />
-        </button>
+        </motion.button>
         {open && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
