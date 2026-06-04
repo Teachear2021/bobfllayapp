@@ -204,7 +204,7 @@ function HomeScreen({ onNavigate, user, openAuth }: { onNavigate: (t: any) => vo
           © 2026 FCIA · Todos os direitos reservados
         </p>
       </footer>
-    </div>
+    </motion.div>
 
   );
 }
@@ -899,10 +899,11 @@ function BottomNav({ tab, setTab }: { tab: string; setTab: (t: any) => void }) {
           {items.map(({ key, icon: Icon, label }) => {
             const active = tab === key;
             return (
-              <button
+              <motion.button
                 key={key}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setTab(key)}
-                className="relative flex flex-1 flex-col items-center gap-0.5 rounded-2xl px-2 py-1.5 transition active:scale-95"
+                className="relative flex flex-1 flex-col items-center gap-0.5 rounded-2xl px-2 py-1.5 transition"
               >
                 <div
                   className={`flex h-9 w-9 items-center justify-center rounded-xl transition ${
@@ -910,6 +911,14 @@ function BottomNav({ tab, setTab }: { tab: string; setTab: (t: any) => void }) {
                   }`}
                   style={active ? { background: "var(--gradient-primary)" } : undefined}
                 >
+                  {active && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute inset-0 rounded-xl"
+                      style={{ background: "var(--gradient-primary)", zIndex: -1 }}
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
                   <Icon className="h-4.5 w-4.5" strokeWidth={active ? 2.5 : 2} />
                 </div>
                 <span className={`text-[10px] ${active ? "font-bold text-primary" : "font-medium text-muted-foreground"}`}>
