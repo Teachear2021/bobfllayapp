@@ -67,13 +67,17 @@ function AppShell() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (showSplash) {
-    return <SplashScreen />;
-  }
-
-
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[oklch(0.985_0.005_330)]">
+    <AnimatePresence mode="wait">
+      {showSplash ? (
+        <SplashScreen key="splash" />
+      ) : (
+        <motion.div 
+          key="content"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="relative min-h-screen overflow-x-hidden bg-[oklch(0.985_0.005_330)]"
+        >
       <Toaster position="top-center" />
       {/* ambient pink wash */}
       <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(ellipse_at_top,oklch(0.92_0.08_350)_0%,transparent_70%)]" />
@@ -93,7 +97,9 @@ function AppShell() {
         onClose={() => setShowAuthModal(false)} 
         onSuccess={() => setTab("home")}
       />
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -152,7 +158,7 @@ function TopBar() {
               <button className="w-full px-4 py-2.5 text-xs font-medium text-primary hover:bg-muted/40 border-t border-border">
                 Marcar todas como lidas
               </button>
-            </div>
+            </motion.div>
           </>
         )}
       </div>
@@ -931,18 +937,32 @@ function BottomNav({ tab, setTab }: { tab: string; setTab: (t: any) => void }) {
 
 function SplashScreen() {
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#FFF0F5] overflow-hidden p-6">
-      <div className="relative w-full max-w-sm aspect-square mx-auto flex items-center justify-center">
+    <motion.div 
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#FFF0F5] overflow-hidden p-6"
+    >
+      <motion.div 
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="relative w-full max-w-sm aspect-square mx-auto flex items-center justify-center"
+      >
         <img 
           src={splashImg} 
           alt="Bob Fllay 13567" 
-          className="max-w-full max-h-full object-contain animate-in fade-in zoom-in duration-1000 ease-out" 
+          className="max-w-full max-h-full object-contain" 
+        />
+      </motion.div>
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-48 h-1 bg-secondary/30 rounded-full overflow-hidden">
+        <motion.div 
+          initial={{ width: 0 }}
+          animate={{ width: "100%" }}
+          transition={{ duration: 1.5, ease: "easeInOut" }}
+          className="h-full bg-primary" 
         />
       </div>
-      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-48 h-1 bg-secondary/30 rounded-full overflow-hidden">
-        <div className="h-full bg-primary animate-[loading-progress_1.5s_ease-in-out_forwards]" />
-      </div>
-    </div>
+    </motion.div>
   );
 }
 
