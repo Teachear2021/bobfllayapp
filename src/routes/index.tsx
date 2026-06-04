@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import candidateAsset from "@/assets/candidate.png.asset.json";
 const candidatePhoto = candidateAsset.url;
+import splashImg from "../assets/splash.png";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -57,6 +58,17 @@ function AppShell() {
   const [tab, setTab] = useState<"home" | "agenda" | "propostas" | "apoie" | "perfil">("home");
   const { user, loading } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (showSplash) {
+    return <SplashScreen />;
+  }
+
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[oklch(0.985_0.005_330)]">
