@@ -10,10 +10,10 @@ export default defineConfig({
       VitePWA({
         registerType: "autoUpdate",
         manifest: {
-          name: "Lovable App",
-          short_name: "Lovable",
-          description: "Lovable Generated Project",
-          theme_color: "#ffffff",
+          name: "Bob Fllay | 13567",
+          short_name: "Bob Fllay",
+          description: "App oficial do Bob Fllay. Propostas, agenda e apoio.",
+          theme_color: "#E91E63",
           background_color: "#ffffff",
           display: "standalone",
           orientation: "portrait",

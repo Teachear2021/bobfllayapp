@@ -42,11 +42,11 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Bob Fllay — App oficial" },
+      { title: "Bob Fllay 13567 | Início | App Oficial" },
       {
         name: "description",
         content:
-          "App oficial do deputado Bob Fllay: agenda, propostas, apoio e contato direto.",
+          "Participe da campanha de Bob Fllay 13567. Veja propostas, agenda e torne-se um multiplicador oficial.",
       },
     ],
   }),
