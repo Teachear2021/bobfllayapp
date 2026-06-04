@@ -177,7 +177,14 @@ function HomeScreen({ onNavigate, user, openAuth }: { onNavigate: (t: any) => vo
       <MultiplierCard user={user} openAuth={openAuth} />
       <EndorsementsCard />
       <SupportInline user={user} />
+      
+      <footer className="mt-12 pb-8 text-center">
+        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest opacity-60">
+          © 2026 FCIA · Todos os direitos reservados
+        </p>
+      </footer>
     </div>
+
   );
 }
 
