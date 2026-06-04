@@ -921,16 +921,15 @@ function BottomNav({ tab, setTab }: { tab: string; setTab: (t: any) => void }) {
 
 function SplashScreen() {
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white overflow-hidden">
-      <div className="relative h-full w-full max-w-md mx-auto">
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white overflow-hidden p-6">
+      <div className="relative w-full max-w-sm aspect-[1221/1050] mx-auto flex items-center justify-center">
         <img 
           src={splashImg} 
           alt="Bob Fllay 13567" 
-          className="h-full w-full object-cover animate-in fade-in zoom-in duration-1000 ease-out" 
+          className="max-w-full max-h-full object-contain animate-in fade-in zoom-in duration-1000 ease-out" 
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent pointer-events-none" />
       </div>
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-48 h-1 bg-secondary rounded-full overflow-hidden">
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-48 h-1 bg-secondary rounded-full overflow-hidden">
         <div className="h-full bg-primary animate-[shimmer_2s_infinite]" style={{ width: '40%' }}>
           <div className="h-full w-full bg-primary animate-[loading-progress_2.5s_ease-in-out_forwards]" />
         </div>
@@ -938,4 +937,5 @@ function SplashScreen() {
     </div>
   );
 }
+
 
