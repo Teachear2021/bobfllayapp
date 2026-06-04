@@ -843,26 +843,29 @@ function ProfileScreen({ user, openAuth }: { user: any, openAuth: () => void }) 
         </div>
       </div>
 
-      <div className="grid gap-3">
-        <button className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 text-left active:scale-[0.99] transition">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-primary">
-              <Calendar className="h-4.5 w-4.5" />
+      {/* Botões decorativos do perfil (fase 2) */}
+      {false && (
+        <div className="grid gap-3">
+          <button className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 text-left active:scale-[0.99] transition">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-primary">
+                <Calendar className="h-4.5 w-4.5" />
+              </div>
+              <span className="text-sm font-semibold">Minha agenda</span>
             </div>
-            <span className="text-sm font-semibold">Minha agenda</span>
-          </div>
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
-        </button>
-        <button className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 text-left active:scale-[0.99] transition">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-primary">
-              <MessageCircle className="h-4.5 w-4.5" />
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <button className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 text-left active:scale-[0.99] transition">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-primary">
+                <MessageCircle className="h-4.5 w-4.5" />
+              </div>
+              <span className="text-sm font-semibold">Mensagens</span>
             </div>
-            <span className="text-sm font-semibold">Mensagens</span>
-          </div>
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
-        </button>
-      </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -898,9 +901,10 @@ function Reveal({ children }: { children: React.ReactNode }) {
 function BottomNav({ tab, setTab }: { tab: string; setTab: (t: any) => void }) {
   const items = [
     { key: "home", icon: Home, label: "Início" },
-    { key: "agenda", icon: Calendar, label: "Agenda" },
-    { key: "propostas", icon: FileText, label: "Propostas" },
-    { key: "apoie", icon: Heart, label: "Apoie" },
+    // Ocultos por enquanto (tabs placeholders fase 2)
+    // { key: "agenda", icon: Calendar, label: "Agenda" },
+    // { key: "propostas", icon: FileText, label: "Propostas" },
+    // { key: "apoie", icon: Heart, label: "Apoie" },
     { key: "perfil", icon: User, label: "Perfil" },
   ] as const;
   return (
