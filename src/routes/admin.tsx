@@ -208,22 +208,31 @@ function SectionHeader({ title, action }: { title: string; action?: React.ReactN
 }
 
 function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
+  // Ocultar pills não maduros (fase 2)
+  const SHOW_MATURE_PILLS = false;
+
   return (
     <div className="space-y-5">
       {/* Status chips */}
-      <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <Chip label="Leads novos" value={24} tone="primary" />
-        <Chip label="Mensagens pendentes" value={9} tone="amber" />
-        <Chip label="Voluntários ativos" value={183} tone="emerald" />
-        <Chip label="Eventos agendados" value={6} tone="blue" />
-      </div>
+      {SHOW_MATURE_PILLS && (
+        <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <Chip label="Leads novos" value={24} tone="primary" />
+          <Chip label="Mensagens pendentes" value={9} tone="amber" />
+          <Chip label="Voluntários ativos" value={183} tone="emerald" />
+          <Chip label="Eventos agendados" value={6} tone="blue" />
+        </div>
+      )}
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3">
         <Reveal><StatCard label="Total de leads" value={1248} delta="+12%" icon={Users} /></Reveal>
         <Reveal delay={60}><StatCard label="Mensagens hoje" value={87} delta="+8%" icon={Inbox} /></Reveal>
-        <Reveal delay={120}><StatCard label="Voluntários" value={183} delta="+5%" icon={HandHeart} /></Reveal>
-        <Reveal delay={180}><StatCard label="Apoiadores" value={12400} delta="+18%" icon={Star} /></Reveal>
+        {SHOW_MATURE_PILLS && (
+          <>
+            <Reveal delay={120}><StatCard label="Voluntários" value={183} delta="+5%" icon={HandHeart} /></Reveal>
+            <Reveal delay={180}><StatCard label="Apoiadores" value={12400} delta="+18%" icon={Star} /></Reveal>
+          </>
+        )}
       </div>
 
       {/* Activity */}
@@ -231,7 +240,7 @@ function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         <div className="rounded-2xl bg-card border p-4 shadow-[var(--shadow-card)]">
           <SectionHeader title="Atividade recente" />
           <ul className="space-y-3">
-            {ACTIVITY.map((a) => (
+            {ACTIVITY.slice(0, 3).map((a) => (
               <li key={a.id} className="flex items-start gap-3">
                 <div className="mt-0.5 h-7 w-7 rounded-full bg-primary/10 text-primary grid place-items-center text-[11px] font-semibold">
                   {a.who[0]}
@@ -254,13 +263,13 @@ function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         <div className="grid grid-cols-2 gap-3">
           <button onClick={() => onNavigate("leads")} className="rounded-2xl bg-gradient-to-br from-primary to-[oklch(0.72_0.19_350)] text-primary-foreground p-4 text-left shadow-[var(--shadow-soft)] active:scale-[0.98] transition">
             <Users className="h-5 w-5 mb-6 opacity-90" />
-            <div className="font-semibold">Gerenciar leads</div>
-            <div className="text-xs opacity-90 mt-0.5">24 novos para revisar</div>
+            <div className="font-semibold text-sm">Gerenciar leads</div>
+            <div className="text-[11px] opacity-90 mt-0.5">24 novos para revisar</div>
           </button>
           <button onClick={() => onNavigate("mensagens")} className="rounded-2xl bg-card border p-4 text-left shadow-[var(--shadow-card)] active:scale-[0.98] transition">
             <Inbox className="h-5 w-5 mb-6 text-primary" />
-            <div className="font-semibold">Caixa de mensagens</div>
-            <div className="text-xs text-muted-foreground mt-0.5">9 não lidas</div>
+            <div className="font-semibold text-sm">Caixa de entrada</div>
+            <div className="text-[11px] text-muted-foreground mt-0.5">9 não lidas</div>
           </button>
         </div>
       </Reveal>
@@ -828,8 +837,9 @@ const NAV: { id: Screen; label: string; icon: any }[] = [
   { id: "dashboard", label: "Painel", icon: LayoutDashboard },
   { id: "leads", label: "Leads", icon: Users },
   { id: "mensagens", label: "Inbox", icon: Inbox },
-  { id: "agenda", label: "Agenda", icon: Calendar },
-  { id: "conteudo", label: "Conteúdo", icon: Settings },
+  // Ocultar itens não maduros (fase 2)
+  // { id: "agenda", label: "Agenda", icon: Calendar },
+  // { id: "conteudo", label: "Conteúdo", icon: Settings },
 ];
 
 const TITLES: Record<Screen, string> = {
@@ -922,20 +932,23 @@ function AdminApp() {
               );
             })}
           </div>
-          <div className="flex items-center justify-center gap-1.5 mt-2">
-            {(["voluntarios", "propostas", "analytics"] as Screen[]).map((s) => (
-              <button
-                key={s}
-                onClick={() => setScreen(s)}
-                className={cn(
-                  "text-[10px] font-medium px-2.5 py-1 rounded-full border transition",
-                  screen === s ? "bg-foreground text-background border-foreground" : "bg-card text-muted-foreground border-border",
-                )}
-              >
-                {TITLES[s]}
-              </button>
-            ))}
-          </div>
+          {/* Pills de recursos futuros (fase 2) */}
+          {false && (
+            <div className="flex items-center justify-center gap-1.5 mt-2">
+              {(["voluntarios", "propostas", "analytics"] as Screen[]).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setScreen(s)}
+                  className={cn(
+                    "text-[10px] font-medium px-2.5 py-1 rounded-full border transition",
+                    screen === s ? "bg-foreground text-background border-foreground" : "bg-card text-muted-foreground border-border",
+                  )}
+                >
+                  {TITLES[s]}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </nav>
     </div>
