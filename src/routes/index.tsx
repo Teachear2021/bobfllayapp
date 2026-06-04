@@ -179,7 +179,7 @@ function HomeScreen({ onNavigate, user, openAuth }: { onNavigate: (t: any) => vo
       <SupportInline user={user} />
       
       <footer className="mt-12 pb-8 text-center">
-        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest opacity-60">
+        <p className="text-[10px] font-bold text-[oklch(0.4_0.01_330)] uppercase tracking-widest opacity-80">
           © 2026 FCIA · Todos os direitos reservados
         </p>
       </footer>
