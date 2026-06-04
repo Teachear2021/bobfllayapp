@@ -837,8 +837,9 @@ const NAV: { id: Screen; label: string; icon: any }[] = [
   { id: "dashboard", label: "Painel", icon: LayoutDashboard },
   { id: "leads", label: "Leads", icon: Users },
   { id: "mensagens", label: "Inbox", icon: Inbox },
-  { id: "agenda", label: "Agenda", icon: Calendar },
-  { id: "conteudo", label: "Conteúdo", icon: Settings },
+  // Ocultar itens não maduros (fase 2)
+  // { id: "agenda", label: "Agenda", icon: Calendar },
+  // { id: "conteudo", label: "Conteúdo", icon: Settings },
 ];
 
 const TITLES: Record<Screen, string> = {
@@ -931,20 +932,23 @@ function AdminApp() {
               );
             })}
           </div>
-          <div className="flex items-center justify-center gap-1.5 mt-2">
-            {(["voluntarios", "propostas", "analytics"] as Screen[]).map((s) => (
-              <button
-                key={s}
-                onClick={() => setScreen(s)}
-                className={cn(
-                  "text-[10px] font-medium px-2.5 py-1 rounded-full border transition",
-                  screen === s ? "bg-foreground text-background border-foreground" : "bg-card text-muted-foreground border-border",
-                )}
-              >
-                {TITLES[s]}
-              </button>
-            ))}
-          </div>
+          {/* Pills de recursos futuros (fase 2) */}
+          {false && (
+            <div className="flex items-center justify-center gap-1.5 mt-2">
+              {(["voluntarios", "propostas", "analytics"] as Screen[]).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setScreen(s)}
+                  className={cn(
+                    "text-[10px] font-medium px-2.5 py-1 rounded-full border transition",
+                    screen === s ? "bg-foreground text-background border-foreground" : "bg-card text-muted-foreground border-border",
+                  )}
+                >
+                  {TITLES[s]}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </nav>
     </div>
