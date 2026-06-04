@@ -229,7 +229,7 @@ function StoriesRow() {
               </div>
             </div>
             <span className="text-[10px] font-semibold text-foreground">{s.label}</span>
-          </button>
+          </motion.button>
         ))}
       </div>
     </div>
@@ -565,7 +565,7 @@ function QuickTiles({ onNavigate }: { onNavigate: (t: any) => void }) {
             <Icon className="h-5 w-5 text-primary" />
           </div>
           <span className="text-[10.5px] font-semibold text-foreground">{label}</span>
-        </button>
+        </motion.button>
       ))}
     </div>
   );
@@ -924,7 +924,7 @@ function BottomNav({ tab, setTab }: { tab: string; setTab: (t: any) => void }) {
                 <span className={`text-[10px] ${active ? "font-bold text-primary" : "font-medium text-muted-foreground"}`}>
                   {label}
                 </span>
-              </button>
+              </motion.button>
             );
           })}
         </div>
