@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
   FileText,
@@ -116,18 +117,20 @@ function TopBar() {
         </div>
       </div>
       <div className="relative">
-        <button
+        <motion.button
           aria-label="Notificações"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setOpen((v) => !v)}
-          className="relative flex h-10 w-10 items-center justify-center rounded-full bg-card border border-border shadow-[var(--shadow-card)] active:scale-95 transition"
+          className="relative flex h-10 w-10 items-center justify-center rounded-full bg-card border border-border shadow-[var(--shadow-card)] transition"
         >
           <Bell className="h-4.5 w-4.5 text-foreground" />
           <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-primary ring-2 ring-card" />
         </button>
         {open && (
           <>
-            <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-            <div className="absolute right-0 top-12 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-card shadow-xl animate-[fade-in_150ms_ease-out] overflow-hidden">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+            <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} className="absolute right-0 top-12 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-card shadow-xl overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                 <p className="text-sm font-semibold text-foreground">Notificações</p>
                 <button onClick={() => setOpen(false)} className="text-xs text-muted-foreground hover:text-foreground">Fechar</button>
@@ -202,7 +205,7 @@ function StoriesRow() {
     <div className="-mx-5 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <div className="flex gap-3">
         {items.map((s) => (
-          <button key={s.label} className="flex flex-col items-center gap-1 active:scale-95 transition">
+          <motion.button key={s.label} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex flex-col items-center gap-1 transition">
             <div className={`flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br ${s.color} p-[2px]`}>
               <div className="flex h-full w-full items-center justify-center rounded-full bg-card">
                 <img src={candidatePhoto} alt="" className="h-[58px] w-[58px] rounded-full object-cover" />
@@ -234,8 +237,12 @@ function UrnaCard() {
     }
   };
   return (
-    <Reveal>
-      <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-card)]">
+      <motion.section 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-card)]"
+      >
         <div className="relative p-5 text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>
           <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest opacity-90">
             <Vote className="h-3 w-3" /> Seu voto na urna
@@ -245,12 +252,15 @@ function UrnaCard() {
               <p className="text-[11px] opacity-90">Deputado Federal</p>
               <div className="mt-1 flex gap-1.5">
                 {number.split("").map((d, i) => (
-                  <span
+                  <motion.span
                     key={i}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: i * 0.1 }}
                     className="flex h-12 w-9 items-center justify-center rounded-lg bg-white/15 backdrop-blur text-2xl font-extrabold tabular-nums ring-1 ring-white/30"
                   >
                     {d}
-                  </span>
+                  </motion.span>
                 ))}
               </div>
             </div>
@@ -258,17 +268,16 @@ function UrnaCard() {
           <p className="mt-3 text-[12px] opacity-95">Bob Fllay · PSD</p>
         </div>
         <div className="flex border-t border-border">
-          <button onClick={copy} className="flex flex-1 items-center justify-center gap-1.5 py-3 text-xs font-semibold text-foreground transition active:scale-95">
+          <motion.button whileTap={{ scale: 0.95 }} onClick={copy} className="flex flex-1 items-center justify-center gap-1.5 py-3 text-xs font-semibold text-foreground transition">
             {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4 text-primary" />}
             {copied ? "Copiado" : "Copiar"}
-          </button>
+          </motion.button>
           <div className="w-px bg-border" />
-          <button onClick={share} className="flex flex-1 items-center justify-center gap-1.5 py-3 text-xs font-semibold text-foreground transition active:scale-95">
+          <motion.button whileTap={{ scale: 0.95 }} onClick={share} className="flex flex-1 items-center justify-center gap-1.5 py-3 text-xs font-semibold text-foreground transition">
             <Share2 className="h-4 w-4 text-primary" /> Compartilhar
-          </button>
+          </motion.button>
         </div>
-      </section>
-    </Reveal>
+      </motion.section>
   );
 }
 
