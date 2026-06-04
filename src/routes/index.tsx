@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import candidateAsset from "@/assets/candidate.png.asset.json";
 const candidatePhoto = candidateAsset.url;
+import splashImg from "../assets/splash.png";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -57,6 +58,17 @@ function AppShell() {
   const [tab, setTab] = useState<"home" | "agenda" | "propostas" | "apoie" | "perfil">("home");
   const { user, loading } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (showSplash) {
+    return <SplashScreen />;
+  }
+
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[oklch(0.985_0.005_330)]">
@@ -899,3 +911,24 @@ function BottomNav({ tab, setTab }: { tab: string; setTab: (t: any) => void }) {
     </nav>
   );
 }
+
+function SplashScreen() {
+  return (
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white overflow-hidden">
+      <div className="relative h-full w-full max-w-md mx-auto">
+        <img 
+          src={splashImg} 
+          alt="Bob Fllay 13567" 
+          className="h-full w-full object-cover animate-in fade-in zoom-in duration-1000 ease-out" 
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent pointer-events-none" />
+      </div>
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-48 h-1 bg-secondary rounded-full overflow-hidden">
+        <div className="h-full bg-primary animate-[shimmer_2s_infinite]" style={{ width: '40%' }}>
+          <div className="h-full w-full bg-primary animate-[loading-progress_2.5s_ease-in-out_forwards]" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
