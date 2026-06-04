@@ -922,7 +922,7 @@ function BottomNav({ tab, setTab }: { tab: string; setTab: (t: any) => void }) {
 function SplashScreen() {
   return (
     <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white overflow-hidden p-6">
-      <div className="relative w-full max-w-sm aspect-[1221/1050] mx-auto flex items-center justify-center">
+      <div className="relative w-full max-w-sm aspect-square mx-auto flex items-center justify-center">
         <img 
           src={splashImg} 
           alt="Bob Fllay 13567" 
