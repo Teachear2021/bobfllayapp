@@ -2,6 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Phone, CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -63,10 +64,24 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center px-4 pb-4 sm:p-0">
-      <div className="fixed inset-0 bg-background/80 backdrop-blur-sm transition-opacity" onClick={onClose} />
-      
-      <div className="relative w-full max-w-sm overflow-hidden rounded-t-3xl sm:rounded-3xl border border-border bg-card p-6 shadow-2xl animate-in fade-in slide-in-from-bottom-10 duration-300">
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center px-4 pb-4 sm:p-0">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm transition-opacity" 
+            onClick={onClose} 
+          />
+          
+          <motion.div 
+            initial={{ y: "100%", opacity: 0, scale: 0.95 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: "100%", opacity: 0, scale: 0.95 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative w-full max-w-sm overflow-hidden rounded-t-3xl sm:rounded-3xl border border-border bg-card p-6 shadow-2xl"
+          >
         <div className="flex flex-col items-center text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-4">
             {step === "phone" ? <Phone className="h-6 w-6" /> : <CheckCircle2 className="h-6 w-6" />}
@@ -138,7 +153,9 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
         >
           Talvez mais tarde
         </button>
-      </div>
-    </div>
+        </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
   FileText,
@@ -66,13 +67,17 @@ function AppShell() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (showSplash) {
-    return <SplashScreen />;
-  }
-
-
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[oklch(0.985_0.005_330)]">
+    <AnimatePresence mode="wait">
+      {showSplash ? (
+        <SplashScreen key="splash" />
+      ) : (
+        <motion.div 
+          key="content"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="relative min-h-screen overflow-x-hidden bg-[oklch(0.985_0.005_330)]"
+        >
       <Toaster position="top-center" />
       {/* ambient pink wash */}
       <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(ellipse_at_top,oklch(0.92_0.08_350)_0%,transparent_70%)]" />
@@ -92,7 +97,9 @@ function AppShell() {
         onClose={() => setShowAuthModal(false)} 
         onSuccess={() => setTab("home")}
       />
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -116,18 +123,20 @@ function TopBar() {
         </div>
       </div>
       <div className="relative">
-        <button
+        <motion.button
           aria-label="Notificações"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setOpen((v) => !v)}
-          className="relative flex h-10 w-10 items-center justify-center rounded-full bg-card border border-border shadow-[var(--shadow-card)] active:scale-95 transition"
+          className="relative flex h-10 w-10 items-center justify-center rounded-full bg-card border border-border shadow-[var(--shadow-card)] transition"
         >
           <Bell className="h-4.5 w-4.5 text-foreground" />
           <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-primary ring-2 ring-card" />
-        </button>
+        </motion.button>
         {open && (
           <>
-            <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-            <div className="absolute right-0 top-12 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-card shadow-xl animate-[fade-in_150ms_ease-out] overflow-hidden">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+            <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }} className="absolute right-0 top-12 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-card shadow-xl overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                 <p className="text-sm font-semibold text-foreground">Notificações</p>
                 <button onClick={() => setOpen(false)} className="text-xs text-muted-foreground hover:text-foreground">Fechar</button>
@@ -149,7 +158,7 @@ function TopBar() {
               <button className="w-full px-4 py-2.5 text-xs font-medium text-primary hover:bg-muted/40 border-t border-border">
                 Marcar todas como lidas
               </button>
-            </div>
+            </motion.div>
           </>
         )}
       </div>
@@ -160,7 +169,18 @@ function TopBar() {
 
 function HomeScreen({ onNavigate, user, openAuth }: { onNavigate: (t: any) => void, user: any, openAuth: () => void }) {
   return (
-    <div className="space-y-6">
+    <motion.div 
+      variants={{
+        show: {
+          transition: {
+            staggerChildren: 0.1
+          }
+        }
+      }}
+      initial="hidden"
+      animate="show"
+      className="space-y-6"
+    >
       <HeaderCard />
       <StoriesRow />
       <UrnaCard />
@@ -184,7 +204,7 @@ function HomeScreen({ onNavigate, user, openAuth }: { onNavigate: (t: any) => vo
           © 2026 FCIA · Todos os direitos reservados
         </p>
       </footer>
-    </div>
+    </motion.div>
 
   );
 }
@@ -202,14 +222,14 @@ function StoriesRow() {
     <div className="-mx-5 overflow-x-auto px-5 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <div className="flex gap-3">
         {items.map((s) => (
-          <button key={s.label} className="flex flex-col items-center gap-1 active:scale-95 transition">
+          <motion.button key={s.label} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex flex-col items-center gap-1 transition">
             <div className={`flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br ${s.color} p-[2px]`}>
               <div className="flex h-full w-full items-center justify-center rounded-full bg-card">
                 <img src={candidatePhoto} alt="" className="h-[58px] w-[58px] rounded-full object-cover" />
               </div>
             </div>
             <span className="text-[10px] font-semibold text-foreground">{s.label}</span>
-          </button>
+          </motion.button>
         ))}
       </div>
     </div>
@@ -234,8 +254,12 @@ function UrnaCard() {
     }
   };
   return (
-    <Reveal>
-      <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-card)]">
+      <motion.section 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="overflow-hidden rounded-3xl border border-border bg-card shadow-[var(--shadow-card)]"
+      >
         <div className="relative p-5 text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>
           <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest opacity-90">
             <Vote className="h-3 w-3" /> Seu voto na urna
@@ -245,12 +269,15 @@ function UrnaCard() {
               <p className="text-[11px] opacity-90">Deputado Federal</p>
               <div className="mt-1 flex gap-1.5">
                 {number.split("").map((d, i) => (
-                  <span
+                  <motion.span
                     key={i}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: i * 0.1 }}
                     className="flex h-12 w-9 items-center justify-center rounded-lg bg-white/15 backdrop-blur text-2xl font-extrabold tabular-nums ring-1 ring-white/30"
                   >
                     {d}
-                  </span>
+                  </motion.span>
                 ))}
               </div>
             </div>
@@ -258,17 +285,16 @@ function UrnaCard() {
           <p className="mt-3 text-[12px] opacity-95">Bob Fllay · PSD</p>
         </div>
         <div className="flex border-t border-border">
-          <button onClick={copy} className="flex flex-1 items-center justify-center gap-1.5 py-3 text-xs font-semibold text-foreground transition active:scale-95">
+          <motion.button whileTap={{ scale: 0.95 }} onClick={copy} className="flex flex-1 items-center justify-center gap-1.5 py-3 text-xs font-semibold text-foreground transition">
             {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4 text-primary" />}
             {copied ? "Copiado" : "Copiar"}
-          </button>
+          </motion.button>
           <div className="w-px bg-border" />
-          <button onClick={share} className="flex flex-1 items-center justify-center gap-1.5 py-3 text-xs font-semibold text-foreground transition active:scale-95">
+          <motion.button whileTap={{ scale: 0.95 }} onClick={share} className="flex flex-1 items-center justify-center gap-1.5 py-3 text-xs font-semibold text-foreground transition">
             <Share2 className="h-4 w-4 text-primary" /> Compartilhar
-          </button>
+          </motion.button>
         </div>
-      </section>
-    </Reveal>
+      </motion.section>
   );
 }
 
@@ -528,16 +554,18 @@ function QuickTiles({ onNavigate }: { onNavigate: (t: any) => void }) {
   return (
     <div className="grid grid-cols-4 gap-2.5">
       {tiles.map(({ icon: Icon, label, tab }) => (
-        <button
+        <motion.button
           key={label}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => onNavigate(tab)}
-          className="group flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)] transition active:scale-95"
+          className="group flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)] transition"
         >
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent transition group-hover:bg-primary/10">
             <Icon className="h-5 w-5 text-primary" />
           </div>
           <span className="text-[10.5px] font-semibold text-foreground">{label}</span>
-        </button>
+        </motion.button>
       ))}
     </div>
   );
@@ -844,39 +872,15 @@ function SimpleScreen({ title, subtitle }: { title: string; subtitle: string }) 
 }
 
 function Reveal({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [shown, setShown] = useState(true);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    setShown(false);
-    const io = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) {
-          setShown(true);
-          io.disconnect();
-        }
-      },
-      { threshold: 0.05 },
-    );
-    io.observe(el);
-    const fallback = setTimeout(() => setShown(true), 400);
-    return () => {
-      io.disconnect();
-      clearTimeout(fallback);
-    };
-  }, []);
   return (
-    <div
-      ref={ref}
-      className="transition-all duration-500 ease-out"
-      style={{
-        opacity: shown ? 1 : 0,
-        transform: shown ? "translateY(0)" : "translateY(16px)",
-      }}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
@@ -895,10 +899,11 @@ function BottomNav({ tab, setTab }: { tab: string; setTab: (t: any) => void }) {
           {items.map(({ key, icon: Icon, label }) => {
             const active = tab === key;
             return (
-              <button
+              <motion.button
                 key={key}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setTab(key)}
-                className="relative flex flex-1 flex-col items-center gap-0.5 rounded-2xl px-2 py-1.5 transition active:scale-95"
+                className="relative flex flex-1 flex-col items-center gap-0.5 rounded-2xl px-2 py-1.5 transition"
               >
                 <div
                   className={`flex h-9 w-9 items-center justify-center rounded-xl transition ${
@@ -906,12 +911,20 @@ function BottomNav({ tab, setTab }: { tab: string; setTab: (t: any) => void }) {
                   }`}
                   style={active ? { background: "var(--gradient-primary)" } : undefined}
                 >
+                  {active && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute inset-0 rounded-xl"
+                      style={{ background: "var(--gradient-primary)", zIndex: -1 }}
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
                   <Icon className="h-4.5 w-4.5" strokeWidth={active ? 2.5 : 2} />
                 </div>
                 <span className={`text-[10px] ${active ? "font-bold text-primary" : "font-medium text-muted-foreground"}`}>
                   {label}
                 </span>
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -922,18 +935,32 @@ function BottomNav({ tab, setTab }: { tab: string; setTab: (t: any) => void }) {
 
 function SplashScreen() {
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#FFF0F5] overflow-hidden p-6">
-      <div className="relative w-full max-w-sm aspect-square mx-auto flex items-center justify-center">
+    <motion.div 
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#FFF0F5] overflow-hidden p-6"
+    >
+      <motion.div 
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="relative w-full max-w-sm aspect-square mx-auto flex items-center justify-center"
+      >
         <img 
           src={splashImg} 
           alt="Bob Fllay 13567" 
-          className="max-w-full max-h-full object-contain animate-in fade-in zoom-in duration-1000 ease-out" 
+          className="max-w-full max-h-full object-contain" 
+        />
+      </motion.div>
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-48 h-1 bg-secondary/30 rounded-full overflow-hidden">
+        <motion.div 
+          initial={{ width: 0 }}
+          animate={{ width: "100%" }}
+          transition={{ duration: 1.5, ease: "easeInOut" }}
+          className="h-full bg-primary" 
         />
       </div>
-      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-48 h-1 bg-secondary/30 rounded-full overflow-hidden">
-        <div className="h-full bg-primary animate-[loading-progress_1.5s_ease-in-out_forwards]" />
-      </div>
-    </div>
+    </motion.div>
   );
 }
 
