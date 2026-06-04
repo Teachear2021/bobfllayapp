@@ -169,7 +169,18 @@ function TopBar() {
 
 function HomeScreen({ onNavigate, user, openAuth }: { onNavigate: (t: any) => void, user: any, openAuth: () => void }) {
   return (
-    <div className="space-y-6">
+    <motion.div 
+      variants={{
+        show: {
+          transition: {
+            staggerChildren: 0.1
+          }
+        }
+      }}
+      initial="hidden"
+      animate="show"
+      className="space-y-6"
+    >
       <HeaderCard />
       <StoriesRow />
       <UrnaCard />
@@ -543,10 +554,12 @@ function QuickTiles({ onNavigate }: { onNavigate: (t: any) => void }) {
   return (
     <div className="grid grid-cols-4 gap-2.5">
       {tiles.map(({ icon: Icon, label, tab }) => (
-        <button
+        <motion.button
           key={label}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => onNavigate(tab)}
-          className="group flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)] transition active:scale-95"
+          className="group flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-card)] transition"
         >
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent transition group-hover:bg-primary/10">
             <Icon className="h-5 w-5 text-primary" />
@@ -859,39 +872,15 @@ function SimpleScreen({ title, subtitle }: { title: string; subtitle: string }) 
 }
 
 function Reveal({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [shown, setShown] = useState(true);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    setShown(false);
-    const io = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) {
-          setShown(true);
-          io.disconnect();
-        }
-      },
-      { threshold: 0.05 },
-    );
-    io.observe(el);
-    const fallback = setTimeout(() => setShown(true), 400);
-    return () => {
-      io.disconnect();
-      clearTimeout(fallback);
-    };
-  }, []);
   return (
-    <div
-      ref={ref}
-      className="transition-all duration-500 ease-out"
-      style={{
-        opacity: shown ? 1 : 0,
-        transform: shown ? "translateY(0)" : "translateY(16px)",
-      }}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
