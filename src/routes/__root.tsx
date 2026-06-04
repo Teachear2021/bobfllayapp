@@ -120,6 +120,7 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR">
       <head>
+        <link rel="preload" href="/src/assets/splash.png" as="image" />
         <HeadContent />
         <script
           type="application/ld+json"
