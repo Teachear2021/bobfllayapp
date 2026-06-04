@@ -8,11 +8,9 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { PWAInstaller } from "../components/PWAInstaller";
 
 function NotFoundComponent() {
   return (
@@ -76,39 +74,27 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
+    meta: [
+      { charSet: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { title: "Bobfllay App" },
+      { name: "description", content: "Official app for candidate Bob Fllay, offering direct access to his agenda, proposals, and support channels." },
+      { name: "author", content: "Lovable" },
+      { property: "og:title", content: "Bobfllay App" },
+      { property: "og:description", content: "Official app for candidate Bob Fllay, offering direct access to his agenda, proposals, and support channels." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Bobfllay App" },
+      { name: "twitter:description", content: "Official app for candidate Bob Fllay, offering direct access to his agenda, proposals, and support channels." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b3704804-ff35-4f0c-b522-969a594f46fe/id-preview-063099ac--9a9c9fa0-cf2e-414a-a170-d5e780b9a0e0.lovable.app-1780530562667.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b3704804-ff35-4f0c-b522-969a594f46fe/id-preview-063099ac--9a9c9fa0-cf2e-414a-a170-d5e780b9a0e0.lovable.app-1780530562667.png" },
+    ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      {
-        rel: "manifest",
-        href: "/manifest.webmanifest",
-      },
-      {
-        rel: "apple-touch-icon",
-        href: "/__l5e/assets-v1/f07ba323-b911-4b49-b63e-e1220330a276/candidate.png",
-      },
-    ],
-    meta: [
-      { charSet: "utf-8" },
-      {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
-      },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-      { name: "theme-color", content: "#ffffff" },
-      { name: "mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
-      { name: "apple-mobile-web-app-title", content: "Lovable" },
     ],
   }),
   shellComponent: RootShell,
@@ -138,8 +124,6 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
-      <PWAInstaller />
-      <Toaster />
     </QueryClientProvider>
   );
 }
